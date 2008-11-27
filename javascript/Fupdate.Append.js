@@ -1,0 +1,47 @@
+/* <?php echo '*','/';
+
+	$this->requires('clientcide/Fupdate.js');
+	$this->requires('clientcide/Fx.Reveal.js');
+
+echo '/*';?> */
+
+/*
+Script: Fupdate.Append.js
+	Handles the basic functionality of submitting a form and updating a dom element with the result. 
+	The result is appended to the DOM element instead of replacing its contents.
+
+License:
+	http://clientside.cnet.com/wiki/cnet-libraries#license
+*/
+Fupdate.Append = new Class({
+	Extends: Fupdate,
+	options: {
+		//onBeforeEffect: $empty,
+		useReveal: true,
+		revealOptions: {},
+		inject: 'bottom'
+	},
+	makeRequest: function(){
+		this.request = new Request.HTML($merge({
+				url: this.form.get('action'),
+				waiterTarget: this.form
+		}, this.options.requestOptions)).addEvents({
+			success: function(tree, elements, html, javascript){
+				var container = new Element('div').set('html', html).hide();
+				container.inject(this.update, this.options.inject);
+				if (this.options.useReveal) {
+					this.fireEvent('beforeEffect', container);
+					container.set('reveal', this.options.revealOptions).reveal().get('reveal').chain(function(){
+						this.fireEvent('success', [container, update, tree, elements, html, javascript]);
+					}.bind(this));
+				}else {
+					container.show();
+					this.fireEvent('success', [container, update, tree, elements, html]);
+				}
+			}.bind(this),
+			failure: function(xhr){
+				this.fireEvent('failure', xhr);
+			}.bind(this)
+		});
+	}
+});
