@@ -1,6 +1,6 @@
 <?php
 
-$output_folder = realpath(dirname(__FILE__).'/javascript/';
+$output_folder = realpath(dirname(__FILE__).'/javascript/clientcide/';
 
 $clientcide = "http://cnetjavascript.googlecode.com/svn/trunk/Source/";
 
