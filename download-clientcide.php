@@ -1,7 +1,7 @@
 <?php
 PHP_SAPI === 'cli' or die('Please run from the command line');
 
-$output_folder = realpath(dirname(__FILE__).'/javascript/clientcide/';
+$output_folder = realpath(dirname(__FILE__).'/javascript/clientcide/');
 
 $clientcide = "http://cnetjavascript.googlecode.com/svn/trunk/Source/";
 
