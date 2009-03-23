@@ -12,7 +12,7 @@ Script: FixPNG.js
 	Extends the Browser hash object to include methods useful in managing the window location and urls.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 $extend(Browser, {
 	fixPNG: function(el) {

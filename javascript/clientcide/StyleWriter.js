@@ -13,7 +13,7 @@ Script: StyleWriter.js
 Provides a simple method for injecting a css style element into the DOM if it's not already present.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 var StyleWriter = new Class({

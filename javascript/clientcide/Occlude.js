@@ -2,6 +2,7 @@
 
 	$this->requires('mootools/Class.js');
 	$this->requires('mootools/Element.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -10,7 +11,7 @@ Script: Occlude.js
 	Prevents a class from being applied to a DOM element twice.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var Occlude = new Class({
 	// usage: if(this.occlude()) return this.occluded;
@@ -21,7 +22,7 @@ var Occlude = new Class({
 			this.occluded = instance; 
 		} else {
 			this.occluded = false;
-			element.store(property, this);
+			element.store(property || this.property, this);
 		}
 		return this.occluded||false;
 	}

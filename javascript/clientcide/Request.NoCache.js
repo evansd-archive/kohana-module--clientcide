@@ -1,8 +1,8 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/Class.Refactor.js');
 	$this->requires('mootools/Request.js');
 	$this->requires('mootools/Request.HTML.js');
+	$this->requires('clientcide/Class.Refactor.js');
 
 echo '/*';?> */
 
@@ -11,7 +11,7 @@ Script: Request.NoCache.js
 	Extends Request and Request.HTML to automatically include a unique noCache value to prevent request caching.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 (function(){
 	var rqst = function(cls) {
@@ -26,12 +26,23 @@ License:
 
 					var old = this.options;
 					options = $extend({data: old.data, url: old.url, method: old.method}, options);
-					options.url = options.url+(options.url.contains("?")?"&":"?")+"noCache=" + new Date().getTime();
+					var data = options.data, url = options.url, method = options.method;
+
+					if (options.url) {
+						options.url += (options.url.contains("?")?"&":"?")+"noCache=" + new Date().getTime();
+					} else  {
+						switch ($type(data)){
+							case 'element': data = $(data).toQueryString(); break;
+							case 'object': case 'hash': data = Hash.toQueryString(data);
+						}
+						data += (data.length?"&":"") + "noCache=" + new Date().getTime();
+						options.data = data;
+					}
 				}
 				this.parent(options);
 			}
 		});
 	};
 	Request = rqst(Request);
-	Request.HTML = rqst(Request);
+	Request.HTML = rqst(Request.HTML);
 })();

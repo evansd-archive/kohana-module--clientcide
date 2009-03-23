@@ -11,7 +11,7 @@ Script: Fupdate.Append.js
 	The result is appended to the DOM element instead of replacing its contents.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Fupdate.Append = new Class({
 	Extends: Fupdate,
@@ -23,8 +23,8 @@ Fupdate.Append = new Class({
 	},
 	makeRequest: function(){
 		this.request = new Request.HTML($merge({
-				url: this.form.get('action'),
-				waiterTarget: this.form
+				url: $(this).get('action'),
+				waiterTarget: $(this)
 		}, this.options.requestOptions)).addEvents({
 			success: function(tree, elements, html, javascript){
 				var container = new Element('div').set('html', html).hide();
@@ -32,11 +32,11 @@ Fupdate.Append = new Class({
 				if (this.options.useReveal) {
 					this.fireEvent('beforeEffect', container);
 					container.set('reveal', this.options.revealOptions).reveal().get('reveal').chain(function(){
-						this.fireEvent('success', [container, update, tree, elements, html, javascript]);
+						this.fireEvent('success', [container, this.update, tree, elements, html, javascript]);
 					}.bind(this));
-				}else {
+				} else {
 					container.show();
-					this.fireEvent('success', [container, update, tree, elements, html]);
+					this.fireEvent('success', [container, this.update, tree, elements, html]);
 				}
 			}.bind(this),
 			failure: function(xhr){

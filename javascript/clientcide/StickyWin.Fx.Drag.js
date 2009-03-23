@@ -1,7 +1,7 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/StickyWin.Fx.js');
 	$this->requires('mootools/Drag.Move.js');
+	$this->requires('clientcide/StickyWin.Fx.js');
 
 echo '/*';?> */
 
@@ -11,7 +11,7 @@ Script: StickyWin.Fx.Drag.js
 Implements drag and resize functionaity into StickyWin.Fx. See StickyWin.Fx for the options.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 if(typeof Drag != "undefined"){

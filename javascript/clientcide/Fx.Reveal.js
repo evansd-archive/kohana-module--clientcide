@@ -11,7 +11,7 @@ Script: Fx.Reveal.js
 	Defines Fx.Reveal, a class that shows and hides elements with a transition.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Fx.Reveal = new Class({
 	Extends: Fx.Morph,
@@ -125,12 +125,12 @@ Fx.Reveal = new Class({
 					this.start(startStyles);
 					if (!this.$chain) this.$chain = [];
 					this.$chain.unshift(function(){
+						this.element.setStyle('overflow', overflowBefore);
 						if (!this.options.heightOverride && setToAuto) {
 							if (["vertical", "both"].contains(this.options.mode)) this.element.setStyle('height', 'auto');
 							if (["width", "both"].contains(this.options.mode)) this.element.setStyle('width', 'auto');
 						}
 						if(!this.hidden) this.showing = false;
-						this.element.setStyle('overflow', overflowBefore);
 						this.callChain();
 						this.fireEvent('onShow', this.element);
 					}.bind(this));
@@ -202,15 +202,12 @@ Element.implement({
 	dissolve: function(options){
 		this.get('reveal', options).dissolve();
 		return this;
-	}
+	},
 
-});
-
-Element.implement({
 	nix: function() {
 		var  params = Array.link(arguments, {destroy: Boolean.type, options: Object.type});
 		this.get('reveal', params.options).dissolve().chain(function(){
-			this[params.destroy?'destroy':'erase']();
+			this[params.destroy?'destroy':'dispose']();
 		}.bind(this));
 		return this;
 	}

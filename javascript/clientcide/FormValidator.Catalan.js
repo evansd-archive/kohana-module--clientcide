@@ -9,7 +9,7 @@ Script: FormValidator.Catalan.js
 	FormValidator messages in Catalan. Thanks Miquel Hudin.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.CAT = {
 	required:'Aquest camp és obligatori.',

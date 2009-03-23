@@ -9,7 +9,7 @@ Script: Date.Dutch.js
 	FormValidator messages in Dutch. Thanks Lennart Pilon.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Date.$resources.NL = {
 	ago: {

@@ -13,7 +13,7 @@ Script: Date.js
 	Extends the Date native object to include methods useful in managing dates.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 new Native({name: 'Date', initialize: Date, protect: true});
@@ -339,8 +339,8 @@ $extend(Date, {
 				var d = new Date();
 				var culture = Date.$cultures[Date.$culture];
 				d.set('year', bits[Date.$cIndex('year')]);
-				d.set('month', bits[Date.$cIndex('month')] - 1);
 				d.set('date', bits[Date.$cIndex('date')]);
+				d.set('month', bits[Date.$cIndex('month')] - 1);
 				return Date.fixY2K(d);
 			}
 		},
@@ -351,11 +351,26 @@ $extend(Date, {
 			handler: function(bits){
 				var d = new Date();
 				d.set('year', bits[Date.$cIndex('year')]);
-				d.set('month', bits[Date.$cIndex('month')] - 1);
 				d.set('date', bits[Date.$cIndex('date')]);
+				d.set('month', bits[Date.$cIndex('month')] - 1);
 				d.set('hr', bits[4]);
 				d.set('min', bits[5]);
 				d.set('ampm', bits[6]);
+				return Date.fixY2K(d);
+			}
+		},
+		{
+			//"12.31.08 11:59:59", "12-31-08 11:59:59", "12/31/08 11:59:59", "12.31.2008 11:59:59", "12-31-2008 11:59:59", "12/31/2008 11:59:59"
+			re: /^(\d{1,2})[\.\-\/](\d{1,2})[\.\-\/](\d{2,4})\s(\d{1,2}):(\d{1,2}):(\d{1,2})/,
+			handler: function(bits) {
+				var d = new Date();
+				var culture = Date.$cultures[Date.$culture];
+				d.set('year', bits[Date.$cIndex('year')]);
+				d.set('date', bits[Date.$cIndex('date')]);
+				d.set('month', bits[Date.$cIndex('month')] - 1);
+				d.set('hours', bits[4]);
+				d.set('minutes', bits[5]);
+				d.set('seconds', bits[6]);
 				return Date.fixY2K(d);
 			}
 		}

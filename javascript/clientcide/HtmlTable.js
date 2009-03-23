@@ -2,6 +2,7 @@
 
 	$this->requires('mootools/Element.js');
 	$this->requires('mootools/Class.Extras.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -11,7 +12,7 @@ Script: HtmlTable.js
 Builds table elements with methods to add rows quickly.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var HtmlTable = new Class({
 	Implements: [Options],

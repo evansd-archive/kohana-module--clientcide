@@ -11,7 +11,7 @@ Script: Fx.Sort.js
 	Defines Fx.Sort, a class that reorders lists with a transition.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Fx.Sort = new Class({
 	Extends: Fx.Elements,

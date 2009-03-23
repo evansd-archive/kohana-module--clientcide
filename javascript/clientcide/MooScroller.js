@@ -5,6 +5,7 @@
 	$this->requires('mootools/Element.Event.js');
 	$this->requires('mootools/Element.Style.js');
 	$this->requires('mootools/Selectors.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -14,7 +15,7 @@ Script: MooScroller.js
 Recreates the standard scrollbar behavior for elements with overflow but using DOM elements so that the scroll bar elements are completely styleable by css.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var MooScroller = new Class({
 	Implements: [Options, Events],
@@ -107,7 +108,7 @@ var MooScroller = new Class({
 
 		if (this.options.hideWhenNoOverflow) {
 			this.hidden = this.knobSize == this.trackSize;
-			this.track.getParent().setStyle('display', this.hidden?'none':'block');
+			this.track.setStyle('opacity', this.hidden?0:1);
 		}
 		
 		this.scrollRatio = this.contentScrollSize / this.trackSize;

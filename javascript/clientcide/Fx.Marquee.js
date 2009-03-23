@@ -10,7 +10,7 @@ Script: Fx.Marquee.js
 	Defines Fx.Marquee, a marquee class for animated notifications.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Fx.Marquee = new Class({
 	Extends: Fx.Morph,

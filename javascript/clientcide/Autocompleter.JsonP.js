@@ -10,7 +10,7 @@ Script: Autocompleter.JsonP.js
 	Implements JsonP support for the Autocompleter class.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Autocompleter.JsonP = new Class({

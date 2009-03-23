@@ -1,20 +1,15 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Class.Extras.js');
+	$this->requires('mootools/Element.Event.js');
 	$this->requires('clientcide/Class.Binds.js');
 	$this->requires('clientcide/DollarG.js');
 
 echo '/*';?> */
 
-/*
-Script: HoverGroup.js
-	Manages mousing in and out of multiple objects (think drop-down menus).
-
-License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
-*/
 var HoverGroup = new Class({
-	Implements: [Options, Events, Class.Binds],
+	Implements: [Options, Events],
+	Binds: ['enter', 'leave', 'remain'],
 	options: {
 		//onEnter: $empty,
 		//onLeave: $empty,
@@ -24,7 +19,6 @@ var HoverGroup = new Class({
 		remain: [],
 		end: ['mouseleave']
 	},
-	binds: ['enter', 'leave', 'remain'],
 	initialize: function(options) {
 		this.setOptions(options);
 		this.attachTo(this.options.elements);
@@ -39,24 +33,26 @@ var HoverGroup = new Class({
 	},
 	elements: [],
 	attachTo: function(elements, detach){
-		var actions = {};
+		var starters = {}, remainers = {}, enders = {};
 		elements = $G(elements);
 		this.options.start.each(function(start) {
-			actions[start] = this.enter;
+			starters[start] = this.enter;
 		}, this);
 		this.options.end.each(function(end) {
-			actions[end] = this.leave;
+			enders[end] = this.leave;
 		}, this);
 		this.options.remain.each(function(remain){
-			actions[remain] = this.remain;
+			remainers[remain] = this.remain;
 		}, this);
 		if (detach) {
 			elements.each(function(el) {
-				el.removeEvents(actions);
+				el.removeEvents(starters).removeEvents(enders).removeEvents(remainers);
 				this.elements.erase(el);
 			});
 		} else {
-			elements.addEvents(actions);
+			elements.each(function(el){
+				el.addEvents(starters).addEvents(enders).addEvents(remainers);
+			});
 			this.elements.combine(elements);
 		}
 		return this;
@@ -64,22 +60,22 @@ var HoverGroup = new Class({
 	detachFrom: function(elements){
 		this.attachTo(elements, true);
 	},
-	enter: function(){
+	enter: function(e){
 		this.isMoused = true;
-		this.assert();
+		this.assert(e);
 	},
-	leave: function(){
+	leave: function(e){
 		this.isMoused = false;
-		this.assert();
+		this.assert(e);
 	},
-	remain: function(){
-		if (this.active) this.enter();
+	remain: function(e){
+		if (this.active) this.enter(e);
 	},
-	assert: function(){
+	assert: function(e){
 		$clear(this.assertion);
 		this.assertion = (function(){
-			if (!this.isMoused && this.active) this.fireEvent('leave');
-			else if (this.isMoused && !this.active) this.fireEvent('enter');
+			if (!this.isMoused && this.active) this.fireEvent('leave', e);
+			else if (this.isMoused && !this.active) this.fireEvent('enter', e);
 		}).delay(this.options.delay, this);
 	}
 });

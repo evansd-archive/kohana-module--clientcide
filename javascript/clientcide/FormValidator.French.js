@@ -9,7 +9,7 @@ Script: FormValidator.French.js
 	FormValidator messages in French. Thanks Miquel Hudin.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.FR = {
 	required:'Ce champ est obligatoire.',

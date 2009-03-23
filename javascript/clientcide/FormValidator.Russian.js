@@ -9,7 +9,7 @@ Script: FormValidator.Russian.js
 	FormValidator messages in Russian (utf-8 and cp1251). Thanks Chernodarov Egor.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.RU_unicode = {
         required:'Это поле обязательно к заполнению.',

@@ -10,7 +10,7 @@ Script: StickyWin.alert.js
 	Defines StickyWin.alert, a simple little alert box with a close button.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 StickyWin.alert = function(msghdr, msg, baseHref) {
 	baseHref = baseHref||"http://www.cnet.com/html/rb/assets/global/simple.error.popup";

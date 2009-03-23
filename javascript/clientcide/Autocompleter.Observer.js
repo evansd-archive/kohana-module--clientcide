@@ -3,6 +3,7 @@
 	$this->requires('mootools/Class.Extras.js');
 	$this->requires('mootools/Element.Event.js');
 	$this->requires('mootools/JSON.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -28,7 +29,7 @@ var Observer = new Class({
 		this.setOptions(options);
 		this.addEvent('onFired', onFired);
 		this.element = $(el) || $$(el);
-		/* CNET change */
+		/* Clientcide change */
 		this.boundChange = this.changed.bind(this);
 		this.resume();
 	},
@@ -55,7 +56,7 @@ var Observer = new Class({
 		$clear(this.timeout || null);
 		return this;
 	},
-	/* CNET change */
+	/* Clientcide change */
 	pause: function(){
 		$clear(this.timeout);
 		$clear(this.timer);

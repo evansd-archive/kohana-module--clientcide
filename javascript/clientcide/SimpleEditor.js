@@ -1,8 +1,10 @@
 /* <?php echo '*','/';
 
+	$this->requires('mootools/Class.Extras.js');
+	$this->requires('clientcide/ToElement.js');
+	$this->requires('clientcide/Occlude.js');
 	$this->requires('clientcide/Element.Forms.js');
 	$this->requires('clientcide/Element.Shortcuts.js');
-	$this->requires('mootools/Class.Extras.js');
 	$this->requires('clientcide/Clipboard.js');
 	$this->requires('clientcide/String.Extras.js');
 
@@ -13,37 +15,36 @@ Script: SimpleEditor.js
 	A simple html editor for wrapping text with links and whatnot.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var SimpleEditor = new Class({
+	Implements: [Class.ToElement, Class.Occlude],
+	property: 'SimpleEditor',
 	initialize: function(input, buttons, commands){
+		this.element = $(input);
+		if (this.occlude()) return this.occluded;
 		this.commands = new Hash($extend(SimpleEditor.commands, commands||{}));
-		this.input = $(input);
 		this.buttons = $$(buttons);
 		this.buttons.each(function(button){
 			button.addEvent('click', function() {
 				this.exec(button.get('rel'));
 			}.bind(this));
 		}.bind(this));
-		this.input.addEvent('keydown', function(e){
+		$(this).addEvent('keydown', function(e){
 			if (e.control||e.meta) {
 				var key = this.shortCutToKey(e.key, e.shift);
-				if(key) {
+				if (key) {
 					e.stop();
 					this.exec(key);
 				}
 			}
 		}.bind(this));
-		this.input.store('editor', this);
-	},
-	toElement: function(){
-		return this.input;
 	},
 	shortCutToKey: function(shortcut, shift){
 		var returnKey = false;
 		this.commands.each(function(value, key){
 			var char = (value.shortcut ? value.shortcut.toLowerCase() : value.shortcut);
-			if(value.shortcut == shortcut || (shift && char == shortcut)) returnKey = key;
+			if (value.shortcut == shortcut || (shift && char == shortcut)) returnKey = key;
 		});
 		return returnKey;
 	},
@@ -58,16 +59,16 @@ var SimpleEditor = new Class({
 	},
 	exec: function(key){
 		var currentScrollPos; 
-		if (this.input.scrollTop || this.input.scrollLeft) {
+		if ($(this).scrollTop || $(this).scrollLeft) {
 			currentScrollPos = {
-				scrollTop: this.input.getScroll().y,
-				scrollLeft: this.input.getScroll().x
+				scrollTop: $(this).getScroll().y,
+				scrollLeft: $(this).getScroll().x
 			};
 		}
-		if(this.commands.has(key)) this.commands.get(key).command(this.input);
-		if(currentScrollPos) {
-			this.input.set('scrollTop', currentScrollPos.getScroll().y);
-			this.input.set('scrollLeft', currentScrollPos.getScroll().x);
+		if (this.commands.has(key)) this.commands.get(key).command($(this));
+		if (currentScrollPos) {
+			$(this).set('scrollTop', currentScrollPos.getScroll().y);
+			$(this).set('scrollLeft', currentScrollPos.getScroll().x);
 		}
 	}
 });
@@ -87,59 +88,27 @@ SimpleEditor.addCommands({
 	bold: {
 		shortcut: 'b',
 		command: function(input){
-			input.insertAroundCursor({before:'<b>',after:'</b>'});
+			input.insertAroundCursor({before:'<strong>',after:'</strong>'});
 		}
 	},
 	underline: {
 		shortcut: 'u',
 		command: function(input){
-			input.insertAroundCursor({before:'<u>',after:'</u>'});
+			input.insertAroundCursor({before:'<span style="text-decoration:underline">',after:'</span>'});
 		}
 	},
 	anchor: {
 		shortcut: 'l',
 		command: function(input){
-			function simpleLinker(){
-				if(window.TagMaker){
-					if(!this.linkBuilder) this.linkBuilder = new TagMaker.anchor();
-					this.linkBuilder.prompt(input);
-				} else {
-					var href = window.prompt('The URL for the link');
-					var opts = {before: '<a href="'+href+'">', after:'</a>'};
-					if (!input.getSelectedText()) opts.defaultMiddle = window.prompt('The link text');
-					input.insertAroundCursor(opts);
-				}
+			if (window.TagMaker){
+				if (!this.linkBuilder) this.linkBuilder = new TagMaker.anchor();
+				this.linkBuilder.prompt(input);
+			} else {
+				var href = window.prompt(SimpleEditor.getMsg('linkURL'));
+				var opts = {before: '<a href="'+href+'">', after:'</a>'};
+				if (!input.getSelectedText()) opts.defaultMiddle = window.prompt(SimpleEditor.getMsg('linkText'));
+				input.insertAroundCursor(opts);
 			}
-			try {
-				if(Trinket) {
-					if(!this.linkBulder){
-						var lb = Trinket.available.filter(function(trinket){
-							return trinket.name == 'Link Builder';
-						});
-						this.linkBuilder = (lb.length)?lb[0]:new Trinket.LinkBuilder({
-							context: 'default'
-						});
-						this.linkBuilder.clickPrompt(input);
-					}
-				} else simpleLinker();
-			} catch(e){ simpleLinker(); }
-		}
-	},
-	copy: {
-		shortcut: false,
-		command: function(input){
-			if(Clipboard) Clipboard.copyFromElement(input);
-			else simpleErrorPopup('Woops', 'Sorry, this function doesn\'t work here; use ctrl+c.');
-			input.focus();
-		}
-	},
-	cut: {
-		shortcut: false,
-		command: function(input){
-			if(Clipboard) {
-				Clipboard.copyFromElement(input);
-				input.insertAtCursor('');
-			} else simpleErrorPopup('Woops', 'Sorry, this function doesn\'t work here; use ctrl+x.');
 		}
 	},
 	hr: {
@@ -151,11 +120,13 @@ SimpleEditor.addCommands({
 	img: {
 		shortcut: 'g',
 		command: function(input){
-			if(window.TagMaker) {
-				if(!this.anchorBuilder) this.anchorBuilder = new TagMaker.image();
+			if (window.TagMaker) {
+				if (!this.anchorBuilder) this.anchorBuilder = new TagMaker.image();
 				this.anchorBuilder.prompt(input);
 			} else {
-				input.insertAtCursor('<img src="'+window.prompt('The url to the image')+'" />');
+				var href = window.prompt(SimpleEditor.getMsg('imgURL'));
+				var alt = window.prompt(SimpleEditor.getMsg('imgAlt'));
+				input.insertAtCursor('<img src="'+href+'" alt="'+alt.replace(/"/g,'')+'" />');
 			}
 		}
 	},
@@ -177,6 +148,12 @@ SimpleEditor.addCommands({
 			input.insertAroundCursor({before:'<sub>', after: '</sub>'});
 		}
 	},
+	blockquote: {
+		shortcut: false,
+		command: function(input){
+			input.insertAroundCursor({before:'<blockquote>', after: '</blockquote>'});
+		}
+	},
 	paragraph: {
 		shortcut: 'enter',
 		command: function(input){
@@ -192,7 +169,7 @@ SimpleEditor.addCommands({
 	italics: {
 		shortcut: 'i',
 		command: function(input){
-			input.insertAroundCursor({before:'<i>',after:'</i>'});
+			input.insertAroundCursor({before:'<em>',after:'</em>'});
 		}
 	},
 	bullets: {
@@ -217,7 +194,7 @@ SimpleEditor.addCommands({
 		shortcut: false,
 		command: function(input){
 			try {
-				if(!this.container){
+				if (!this.container){
 					this.container = new Element('div', {
 						styles: {
 							border: '1px solid black',
@@ -245,3 +222,19 @@ SimpleEditor.addCommands({
 		}
 	}
 });
+
+SimpleEditor.resources = {
+	enUS: {
+		woops:'Woops',
+		nopeCtrlC:'Sorry, this function doesn\'t work here; use ctrl+c.',
+		nopeCtrlX:'Sorry, this function doesn\'t work here; use ctrl+x.',
+		linkURL:'The URL for the link',
+		linkText:'The link text',
+		imgURL:'The URL to the image',
+		imgAlt:'The title (alt) for the image'
+	}
+};
+SimpleEditor.language = "enUS";
+SimpleEditor.getMsg = function(key, language){
+	return SimpleEditor.resources[language||SimpleEditor.language][key];
+};

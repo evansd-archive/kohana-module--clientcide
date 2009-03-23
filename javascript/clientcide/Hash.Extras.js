@@ -9,7 +9,7 @@ Script: Hash.Extras.js
 	Extends the Hash native object to include getFromPath which allows a path notation to child elements.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Hash.implement({

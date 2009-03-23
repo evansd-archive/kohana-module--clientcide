@@ -9,7 +9,7 @@ Script: FormValidator.Portuguese.js
 	FormValidator messages in Portuguese. Thanks Miquel Hudin.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.POR= {
 	required:'Este campo é necessário.',

@@ -1,5 +1,6 @@
 /* <?php echo '*','/';
 
+	$this->requires('clientcide/Clientcide.js');
 	$this->requires('mootools/Class.Extras.js');
 
 echo '/*';?> */
@@ -9,7 +10,7 @@ Script: Chain.Wait.js
 	Adds a method to inject pauses between chained events.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 (function(){
 	var wait = {

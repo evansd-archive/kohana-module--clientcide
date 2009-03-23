@@ -3,6 +3,7 @@
 	$this->requires('mootools/Element.Event.js');
 	$this->requires('mootools/Element.Dimensions.js');
 	$this->requires('mootools/Element.Style.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -11,7 +12,7 @@ Script: Element.Pin.js
 	Extends the Element native object to include the pin method useful for fixed positioning for elements.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 window.addEvent('domready', function(){

@@ -10,8 +10,21 @@ Script: Element.Position.js
 	Extends the Element native object to include methods useful positioning elements relative to others.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
+
+Element.Properties.position = {
+
+	set: function(options){
+		this.setPosition(options);
+	},
+
+	get: function(options){
+		if (options) this.setPosition(options);
+		return this.getPosition();
+	}
+
+};
 
 Element.implement({
 
@@ -24,66 +37,72 @@ Element.implement({
 				y: 'center' //top, center, bottom
 			},
 			edge: false,
-			offset: {x:0,y:0},
+			offset: {x: 0, y: 0},
 			returnPos: false,
 			relFixedPosition: false,
-			ignoreMargins: false
+			ignoreMargins: false,
+			allowNegative: false
 		}, options);
 		//compute the offset of the parent positioned element if this element is in one
 		var parentOffset = {x: 0, y: 0};
 		var parentPositioned = false;
-		var putItBack = this.expose();
-    /* dollar around getOffsetParent should not be necessary, but as it does not return 
-     * a mootools extended element in IE, an error occurs on the call to expose. See:
+		/* dollar around getOffsetParent should not be necessary, but as it does not return
+		 * a mootools extended element in IE, an error occurs on the call to expose. See:
 		 * http://mootools.lighthouseapp.com/projects/2706/tickets/333-element-getoffsetparent-inconsistency-between-ie-and-other-browsers */
-		var offsetParent = $(this.getOffsetParent());
-		putItBack();
-		if(offsetParent && offsetParent != this.getDocument().body) {
-			var putItBack = offsetParent.expose();
-			parentOffset = offsetParent.getPosition();
-			putItBack();
+		var offsetParent = this.measure(function(){
+			return $(this.getOffsetParent());
+		});
+		if (offsetParent && offsetParent != this.getDocument().body){
+			parentOffset = offsetParent.measure(function(){
+				return this.getPosition();
+			});
 			parentPositioned = true;
 			options.offset.x = options.offset.x - parentOffset.x;
 			options.offset.y = options.offset.y - parentOffset.y;
 		}
 		//upperRight, bottomRight, centerRight, upperLeft, bottomLeft, centerLeft
 		//topRight, topLeft, centerTop, centerBottom, center
-		function fixValue(option) {
-			if($type(option) != "string") return option;
+		var fixValue = function(option){
+			if ($type(option) != "string") return option;
 			option = option.toLowerCase();
 			var val = {};
-			if(option.test('left')) val.x = 'left';
-			else if(option.test('right')) val.x = 'right';
+			if (option.test('left')) val.x = 'left';
+			else if (option.test('right')) val.x = 'right';
 			else val.x = 'center';
-
-			if(option.test('upper')||option.test('top')) val.y = 'top';
+			if (option.test('upper') || option.test('top')) val.y = 'top';
 			else if (option.test('bottom')) val.y = 'bottom';
 			else val.y = 'center';
 			return val;
 		};
 		options.edge = fixValue(options.edge);
 		options.position = fixValue(options.position);
-		if(!options.edge) {
-			if(options.position.x == 'center' && options.position.y == 'center') options.edge = {x:'center',y:'center'};
-			else options.edge = {x:'left',y:'top'};
+		if (!options.edge){
+			if (options.position.x == 'center' && options.position.y == 'center') options.edge = {x:'center', y:'center'};
+			else options.edge = {x:'left', y:'top'};
 		}
-		
+
 		this.setStyle('position', 'absolute');
 		var rel = $(options.relativeTo) || document.body;
-		var top = (rel == document.body)?window.getScroll().y:rel.getPosition().y;
-		var left = (rel == document.body)?window.getScroll().x:rel.getPosition().x;
-		
-		if (top < 0) top = 0;
-		if (left < 0) left = 0;
+		var calc = rel == document.body ? window.getScroll() : rel.getPosition();
+		var top = calc.y;
+		var left = calc.x;
+
+		if (Browser.Engine.trident){
+			var scrolls = rel.getScrolls();
+			top += scrolls.y;
+			left += scrolls.x;
+		}
+
 		var dim = this.getDimensions({computeSize: true, styles:['padding', 'border','margin']});
-		if (options.ignoreMargins) {
+		if (options.ignoreMargins){
 			options.offset.x = options.offset.x - dim['margin-left'];
 			options.offset.y = options.offset.y - dim['margin-top'];
 		}
 		var pos = {};
-		var prefY = options.offset.y.toInt();
-		var prefX = options.offset.x.toInt();
-		switch(options.position.x) {
+		var prefY = options.offset.y;
+		var prefX = options.offset.x;
+		var winSize = window.getSize();
+		switch(options.position.x){
 			case 'left':
 				pos.x = left + prefX;
 				break;
@@ -91,10 +110,10 @@ Element.implement({
 				pos.x = left + prefX + rel.offsetWidth;
 				break;
 			default: //center
-				pos.x = left + (((rel == document.body)?window.getSize().x:rel.offsetWidth)/2) + prefX;
+				pos.x = left + ((rel == document.body ? winSize.x : rel.offsetWidth)/2) + prefX;
 				break;
 		};
-		switch(options.position.y) {
+		switch(options.position.y){
 			case 'top':
 				pos.y = top + prefY;
 				break;
@@ -102,14 +121,14 @@ Element.implement({
 				pos.y = top + prefY + rel.offsetHeight;
 				break;
 			default: //center
-				pos.y = top + (((rel == document.body)?window.getSize().y:rel.offsetHeight)/2) + prefY;
+				pos.y = top + ((rel == document.body ? winSize.y : rel.offsetHeight)/2) + prefY;
 				break;
 		};
-		
-		if(options.edge){
+
+		if (options.edge){
 			var edgeOffset = {};
-			
-			switch(options.edge.x) {
+
+			switch(options.edge.x){
 				case 'left':
 					edgeOffset.x = 0;
 					break;
@@ -120,7 +139,7 @@ Element.implement({
 					edgeOffset.x = -(dim.x/2);
 					break;
 			};
-			switch(options.edge.y) {
+			switch(options.edge.y){
 				case 'top':
 					edgeOffset.y = 0;
 					break;
@@ -131,20 +150,22 @@ Element.implement({
 					edgeOffset.y = -(dim.y/2);
 					break;
 			};
-			pos.x = pos.x+edgeOffset.x;
-			pos.y = pos.y+edgeOffset.y;
+			pos.x = pos.x + edgeOffset.x;
+			pos.y = pos.y + edgeOffset.y;
 		}
 		pos = {
-			left: ((pos.x >= 0 || parentPositioned)?pos.x:0).toInt(),
-			top: ((pos.y >= 0 || parentPositioned)?pos.y:0).toInt()
+			left: ((pos.x >= 0 || parentPositioned || options.allowNegative) ? pos.x : 0).toInt(),
+			top: ((pos.y >= 0 || parentPositioned || options.allowNegative) ? pos.y : 0).toInt()
 		};
-		if(rel.getStyle('position') == "fixed"||options.relFixedPosition) {
-			pos.top = pos.top.toInt() + window.getScroll().y;
-			pos.left = pos.left.toInt() + window.getScroll().x;
+		if (rel.getStyle('position') == "fixed" || options.relFixedPosition){
+			var winScroll = window.getScroll();
+			pos.top = pos.top.toInt() + winScroll.y;
+			pos.left = pos.left.toInt() + winScroll.x;
 		}
 
-		if(options.returnPos) return pos;
+		if (options.returnPos) return pos;
 		else this.setStyles(pos);
 		return this;
 	}
+
 });

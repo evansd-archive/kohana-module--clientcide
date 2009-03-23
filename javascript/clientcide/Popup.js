@@ -10,7 +10,7 @@ Script: Popup.js
 	Defines the Popup class useful for making popup windows.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Browser.Popup = new Class({

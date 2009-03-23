@@ -1,7 +1,7 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/Fx.Reveal.js');
 	$this->requires('mootools/Element.Event.js');
+	$this->requires('clientcide/Fx.Reveal.js');
 
 echo '/*';?> */
 
@@ -11,7 +11,7 @@ Script: MultipleOpenAccordion.js
 Creates a Mootools Fx.Accordion that allows the user to open more than one element.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var MultipleOpenAccordion = new Class({
 	Implements: [Options, Events, Chain],
@@ -39,24 +39,18 @@ var MultipleOpenAccordion = new Class({
 		}, this);
 		if (this.togglers.length) {
 			if (this.options.openAll) this.showAll();
-			else this.openSections(this.options.firstElementsOpen);
+			else this.toggleSections(this.options.firstElementsOpen, false, true);
 		}
+		this.openSections = this.showSections.bind(this);
+		this.closeSections = this.hideSections.bind(this);
 	},
-	addSection: function(toggler, element, pos){
+	addSection: function(toggler, element){
 		toggler = $(toggler);
 		element = $(element);
 		var test = this.togglers.contains(toggler);
 		var len = this.togglers.length;
 		this.togglers.include(toggler);
 		this.elements.include(element);
-		if (len && (!test || pos)){
-			pos = $pick(pos - 1, len - 1);
-			toggler.inject(this.elements[pos], 'after');
-			element.inject(toggler, 'after');
-		} else if (this.container && !test){
-			toggler.inject(this.container);
-			element.inject(this.container);
-		}
 		var idx = this.togglers.indexOf(toggler);
 		toggler.addEvent('click', this.toggleSection.bind(this, idx));
 		var mode;
@@ -84,8 +78,9 @@ var MultipleOpenAccordion = new Class({
 	toggleSection: function(idx, useFx, show, callChain){
 		var method = show?'reveal':$defined(show)?'dissolve':'toggle';
 		callChain = $pick(callChain, true);
+		var el = this.elements[idx];
 		if($pick(useFx, true)) {
-			this.elements[idx].retrieve('reveal')[method]().chain(
+			el.retrieve('reveal')[method]().chain(
 				this.onComplete.bind(this, [idx, callChain])
 			);
 		} else {
@@ -106,15 +101,19 @@ var MultipleOpenAccordion = new Class({
 	toggleSections: function(sections, useFx, show) {
 		last = sections.getLast();
 		this.elements.each(function(el,idx){
-			this.toggleSection(idx, useFx, sections.contains(idx), show, idx == last);
+			this.toggleSection(idx, useFx, sections.contains(idx)?show:!show, idx == last);
 		}, this);
 		return this;
 	},
-	openSections: function(sections, useFx){
-		this.toggleSections(sections, useFx, true);
+	showSections: function(sections, useFx){
+		sections.each(function(i){
+			this.showSection(i, useFx);
+		}, this);
 	},
-	closeSections: function(sections, useFx){
-		this.toggleSections(sections, useFx, false);
+	hideSections: function(sections, useFx){
+		sections.each(function(i){
+			this.hideSection(i, useFx);
+		}, this);
 	},
 	showAll: function(useFx){
 		return this.toggleAll(useFx, true);

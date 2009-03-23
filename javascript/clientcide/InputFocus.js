@@ -1,9 +1,9 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Class.Extras.js');
+	$this->requires('mootools/Element.js');
 	$this->requires('clientcide/Occlude.js');
 	$this->requires('clientcide/ToElement.js');
-	$this->requires('mootools/Element.js');
 
 echo '/*';?> */
 
@@ -12,11 +12,11 @@ Script: InputFocus.js
 	Adds a focused css class to inputs when they have focus.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var InputFocus = new Class({
-	Implements: [Options, Occlude, ToElement, Class.Binds],
-	binds: ['focus', 'blur'],
+	Implements: [Options, Occlude, ToElement],
+	Binds: ['focus', 'blur'],
 	options: {
 		focusedClass: 'focused'
 	},

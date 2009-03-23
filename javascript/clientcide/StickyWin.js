@@ -1,12 +1,13 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/ToElement.js');
 	$this->requires('mootools/DomReady.js');
+	$this->requires('mootools/Selectors.js');
 	$this->requires('clientcide/Element.Position.js');
+	$this->requires('clientcide/ToElement.js');
+	$this->requires('clientcide/Element.Shortcuts.js');
 	$this->requires('clientcide/Element.Pin.js');
 	$this->requires('clientcide/IframeShim.js');
 	$this->requires('clientcide/StyleWriter.js');
-	$this->requires('mootools/Selectors.js');
 
 echo '/*';?> */
 
@@ -16,26 +17,26 @@ Script: StickyWin.js
 Creates a div within the page with the specified contents at the location relative to the element you specify; basically an in-page popup maker.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 var StickyWin = new Class({
 	Implements: [Options, Events, StyleWriter, ToElement],
 	options: {
-//	onDisplay: $empty,
-//	onClose: $empty,
+//		onDisplay: $empty,
+//		onClose: $empty,
 		closeClassName: 'closeSticky',
 		pinClassName: 'pinSticky',
 		content: '',
 		zIndex: 10000,
 		className: '',
-		//id: ... set above in initialize function
-/*  these are the defaults for setPosition anyway
-/************************************************
-//		edge: false, //see Element.setPosition in element.cnet.js
-//		position: 'center', //center, corner == upperLeft, upperRight, bottomLeft, bottomRight
-//		offset: {x:0,y:0},
-//	  relativeTo: document.body, */
+//		id: ... set above in initialize function
+/*  	these are the defaults for setPosition anyway
+		************************************************
+		edge: false, //see Element.setPosition
+		position: 'center', //center, corner == upperLeft, upperRight, bottomLeft, bottomRight
+		offset: {x:0,y:0},
+		relativeTo: document.body, */
 		width: false,
 		height: false,
 		timeout: -1,
@@ -43,21 +44,21 @@ var StickyWin = new Class({
 		allowMultiple: true,
 		showNow: true,
 		useIframeShim: true,
-		iframeShimSelector: ''
+		iframeShimSelector: '',
+		inject: {
+			where: 'bottom' 
+		}
 	},
 	css: '.SWclearfix:after {content: "."; display: block; height: 0; clear: both; visibility: hidden;}'+
 			 '.SWclearfix {display: inline-table;}'+
 			 '* html .SWclearfix {height: 1%;}'+
 			 '.SWclearfix {display: block;}',
 	initialize: function(options){
-		this.options.inject = {
-			target: document.body,
-			where: 'bottom' 
-		};
 		this.setOptions(options);
-		
+		this.options.inject.target = this.options.inject.target || document.body;
 		this.id = this.options.id || 'StickyWin_'+new Date().getTime();
 		this.makeWindow();
+
 		if(this.options.content) this.setContent(this.options.content);
 		if(this.options.timeout > 0) {
 			this.addEvent('onDisplay', function(){
@@ -84,16 +85,16 @@ var StickyWin = new Class({
 		if(this.options.height && $type(this.options.height.toInt())=="number") this.win.setStyle('height', this.options.height.toInt());
 		return this;
 	},
-	show: function(){
-		this.fireEvent('onDisplay');
+	show: function(suppressEvent){
 		this.showWin();
+		if (!suppressEvent) this.fireEvent('onDisplay');
 		if(this.options.useIframeShim) this.showIframeShim();
 		this.visible = true;
 		return this;
 	},
 	showWin: function(){
-		this.win.setStyle('display','block');
 		if(!this.positioned) this.position();
+		this.win.show();
 	},
 	hide: function(suppressEvent){
 		if(!suppressEvent) this.fireEvent('onClose');
@@ -129,6 +130,7 @@ var StickyWin = new Class({
 		this.positioned = true;
 		this.setOptions(options);
 		this.win.setPosition({
+			allowNegative: true,
 			relativeTo: this.options.relativeTo,
 			position: this.options.position,
 			offset: this.options.offset,

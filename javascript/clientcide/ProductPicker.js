@@ -1,15 +1,15 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Element.Event.js');
-	$this->requires('mootools/Drag.js');
-	$this->requires('clientcide/StickyWin.Fx.js');
-	$this->requires('clientcide/JsonP.js');
-	$this->requires('clientcide/Element.Shortcuts.js');
-	$this->requires('mootools/Tips.js');
-	$this->requires('clientcide/dbug.js');
 	$this->requires('mootools/Fx.Tween.js');
 	$this->requires('mootools/Fx.Elements.js');
 	$this->requires('mootools/Element.Dimensions.js');
+	$this->requires('mootools/Drag.js');
+	$this->requires('clientcide/StickyWin.Fx.js');
+	$this->requires('clientcide/JsonP.js');
+	$this->requires('clientcide/dbug.js');
+	$this->requires('clientcide/Element.Shortcuts.js');
+	$this->requires('mootools/Tips.js');
 	$this->requires('clientcide/StyleWriter.js');
 
 echo '/*';?> */
@@ -19,7 +19,7 @@ Script: ProductPicker.js
 	Allows the user to pick a product from a data source.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var Picklet = new Class({
 	Implements: [Options, Events],
@@ -60,10 +60,11 @@ var ProductPicker = new Class({
 	},
 	initialize: function(input, picklets, options){
 		this.setOptions(options);
+		this.writeCss();
 		this.input = $(input);
+		if (!this.input) return;
 		this.picklets = picklets;
 		this.setUpObservers();
-		this.writeCss();
 	},
 	writeCss: function(){
 		var art = this.options.baseHref;

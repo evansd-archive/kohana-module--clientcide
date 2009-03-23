@@ -1,7 +1,7 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/StickyWin.js');
 	$this->requires('mootools/Fx.Tween.js');
+	$this->requires('clientcide/StickyWin.js');
 
 echo '/*';?> */
 
@@ -11,7 +11,7 @@ Script: StickyWin.Fx.js
 Extends StickyWin to create popups that fade in and out and can be dragged and resized (requires StickyWin.Fx.Drag.js).
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 StickyWin.Fx = new Class({
 	Extends: StickyWin,

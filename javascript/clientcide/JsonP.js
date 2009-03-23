@@ -1,9 +1,9 @@
 /* <?php echo '*','/';
 
-	$this->requires('mootools/Class.Extras.js');
 	$this->requires('mootools/Browser.js');
 	$this->requires('mootools/Element.js');
 	$this->requires('clientcide/dbug.js');
+	$this->requires('mootools/Class.Extras.js');
 
 echo '/*';?> */
 
@@ -12,7 +12,7 @@ Script: JsonP.js
 	Defines JsonP, a class for cross domain javascript via script injection.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var JsonP = new Class({
 	Implements: [Options, Events],

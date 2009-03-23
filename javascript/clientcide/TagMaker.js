@@ -1,19 +1,18 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Element.Dimensions.js');
-	$this->requires('clientcide/Element.Shortcuts.js');
 	$this->requires('mootools/Element.Event.js');
 	$this->requires('mootools/Selectors.js');
-	$this->requires('clientcide/Element.Forms.js');
 	$this->requires('mootools/Fx.Tween.js');
 	$this->requires('mootools/Fx.Morph.js');
 	$this->requires('mootools/Tips.js');
+	$this->requires('clientcide/Element.Shortcuts.js');
+	$this->requires('clientcide/Element.Forms.js');
 	$this->requires('clientcide/FormValidator.js');
 	$this->requires('clientcide/StickyWin.Fx.js');
 	$this->requires('clientcide/StickyWin.ui.js');
 	$this->requires('clientcide/HtmlTable.js');
 	$this->requires('mootools/Drag.js');
-	$this->requires('clientcide/StyleWriter.js');
 
 echo '/*';?> */
 
@@ -22,7 +21,7 @@ Script: TagMaker.js
 	Prompts the user to fill in the gaps to create an html tag output.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var TagMaker = new Class({
 	Implements: [Options, Events, StyleWriter],
@@ -59,14 +58,6 @@ var TagMaker = new Class({
 	initialize: function(options){
 		this.setOptions(options);
 		this.buttons = [
-			{
-				text: 'Copy',
-				onClick: this.copyToClipboard.bind(this),
-				properties: {
-					'class': 'closeSticky tip',
-					title: 'Copy::Copy the html to your OS clipboard (like hitting Ctrl+C)'
-				}
-			},
 			{
 				text: 'Paste',
 				onClick: function(){
@@ -229,15 +220,6 @@ var TagMaker = new Class({
 		});
 		return this.resultInput.value = html;
 	},
-	copyToClipboard: function(){
-		var inputs = this.form.getElements('input');
-		var result = inputs[inputs.length-1];
-		result.select();
-		Clipboard.copyFromElement(result);
-		$$('.tagMaker-tip').hide();
-		this.win.hide();
-		this.fireEvent('onChoose');
-	},
 	insert: function(){
 		if(!this.target) {
 			simpleErrorPopup('Cannot Paste','This tag builder was not launched with a target input specified; you\'ll have to copy the tag yourself. Sorry!');
@@ -313,18 +295,11 @@ TagMaker.image = new Class({
 	}
 });
 
-var TMPicklets = [];
-if(typeof CNETProductPicker_ReviewPath != "undefined") TMPicklets.push(CNETProductPicker_ReviewPath);
-if(typeof CNETProductPicker_PricePath != "undefined") TMPicklets.push(CNETProductPicker_PricePath);
-if(typeof NewsStoryPicker_Path != "undefined") TMPicklets.push(NewsStoryPicker_Path);
 TagMaker.anchor = new Class({
 	Extends: TagMaker,
 	options: {
 		name: "Anchor Builder",
 		output: '<a href="%Full Url%">%Inner Text%</a>',
-		picklets: {
-			'Full Url': (TMPicklets.length)?TMPicklets:false
-		},
 		help: {
 			'Full Url':'Enter the external URL (http://...)',
 			'Inner Text':'Enter the text for the link body'
@@ -335,37 +310,6 @@ TagMaker.anchor = new Class({
 		},
 		'class': {
 			'Full Url':'validate-url'
-		}
-	}
-});
-
-TagMaker.cnetVideo = new Class({
-	Extends: TagMaker,
-	options: {
-		name: "CNET Video Embed Tag",
-		output: '<cnet:video ssaVideoId="%Video Id%" float="%Alignment%"/>',
-		help: {
-			'Video Id':'The id of the video to embed'
-		},
-		'class':{
-			'Video Id':'validate-digits required'
-		},
-		selectLists: {
-			Alignment: [
-				{
-					key: 'left',
-					value: 'left'
-				},
-				{
-					key: 'right',
-					value: 'right'
-				},
-				{
-					key: 'none',
-					value: '',
-					selected: true
-				}
-			]		
 		}
 	}
 });

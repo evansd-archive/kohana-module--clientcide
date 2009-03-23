@@ -5,6 +5,7 @@
 	$this->requires('clientcide/Element.Forms.js');
 	$this->requires('clientcide/IframeShim.js');
 	$this->requires('clientcide/Autocompleter.Observer.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 

@@ -11,7 +11,7 @@ Script: StickyWin.Modal.js
 This script extends StickyWin and StickyWin.Fx classes to add Modalizer functionality.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 (function(){
 var modalWinBase = function(extend){
@@ -35,7 +35,7 @@ var modalWinBase = function(extend){
 		},
 		hide: function(hideModal){
 			if($pick(hideModal, true)) this.modalHide();
-			this.parent($pick(hideModal, true));
+			else this.parent();
 		}
 	}
 };

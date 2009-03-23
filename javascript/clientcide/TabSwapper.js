@@ -15,7 +15,7 @@ Script: TabSwapper.js
 Handles the scripting for a common UI layout; the tabbed box.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var TabSwapper = new Class({
 	Implements: [Options, Events],

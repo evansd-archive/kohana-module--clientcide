@@ -1,7 +1,7 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/StickyWin.js');
 	$this->requires('mootools/Request.js');
+	$this->requires('clientcide/StickyWin.js');
 	$this->requires('clientcide/StickyWin.ui.js');
 
 echo '/*';?> */
@@ -12,7 +12,7 @@ Script: StickyWin.Ajaxjs
 Adds ajax functionality to all the StickyWin classes.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 (function(){
 	var SWA = function(extend){

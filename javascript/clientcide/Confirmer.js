@@ -12,7 +12,7 @@ Script: Confirmer.js
 	Fades a message in and out for the user to tell them that some event (like an ajax save) has occurred.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var Confirmer = new Class({
 	Implements: [Options, Events],

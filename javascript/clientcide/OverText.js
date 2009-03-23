@@ -5,6 +5,7 @@
 	$this->requires('clientcide/Element.Position.js');
 	$this->requires('clientcide/Element.Shortcuts.js');
 	$this->requires('clientcide/dbug.js');
+	$this->requires('clientcide/DollarG.js');
 
 echo '/*';?> */
 
@@ -13,7 +14,7 @@ Script: OverText.js
 	Shows text over an input that disappears when the user clicks into it. The text remains hidden if the user adds a value.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var OverText = new Class({
 	Implements: [Options, Events],
@@ -35,19 +36,20 @@ var OverText = new Class({
 	overTxtEls: [],
 	initialize: function(inputs, options) {
 		this.setOptions(options);
-		$$(inputs).each(this.addElement, this);
+		$G(inputs).each(this.addElement, this);
 		OverText.instances.push(this);
 		if (this.options.poll) this.poll();
 	},
 	addElement: function(el){
-		if (this.overTxtEls.contains(el) || el.retrieve('overtext')) return;
+		if (el.retrieve('OverText')) return;
 		var val = this.options.textOverride || el.get('alt') || el.get('title');
 		if (!val) return;
 		this.overTxtEls.push(el);
 		var txt = new Element('div', {
 		  'class': 'overTxtDiv',
 			styles: {
-				lineHeight: 'normal'
+				lineHeight: 'normal',
+				position: 'absolute'
 			},
 		  html: val,
 		  events: {
@@ -58,7 +60,7 @@ var OverText = new Class({
 			focus: this.hideTxt.pass([el, true], this),
 			blur: this.testOverTxt.pass(el, this),
 			change: this.testOverTxt.pass(el, this)
-		}).store('overtext', txt);
+		}).store('OverTextDiv', txt).store('OverText', this);
 		window.addEvent('resize', this.repositionAll.bind(this));
 		this.testOverTxt(el);
 		this.repositionOverTxt(el);
@@ -88,7 +90,7 @@ var OverText = new Class({
 		return this.poll(true);
 	},
 	hideTxt: function(el, focus){
-		var txt = el.retrieve('overtext');
+		var txt = el.retrieve('OverTextDiv');
 		if (txt && txt.isVisible() && !el.get('disabled')) {
 			txt.hide(); 
 			try {
@@ -100,7 +102,7 @@ var OverText = new Class({
 		return this;
 	},
 	showTxt: function(el){
-		var txt = el.retrieve('overtext');
+		var txt = el.retrieve('OverTextDiv');
 		if (txt && !txt.isVisible()) {
 			txt.show();
 			this.fireEvent('onTextShow', [txt, el]);
@@ -119,7 +121,7 @@ var OverText = new Class({
 	repositionOverTxt: function (el){
 		if (!el) return;
 		try {
-			var txt = el.retrieve('overtext');
+			var txt = el.retrieve('OverTextDiv');
 			if (!txt || !el.getParent()) return;
 			this.testOverTxt(el);
 			txt.setPosition($merge(this.options.positionOptions, {relativeTo: el}));

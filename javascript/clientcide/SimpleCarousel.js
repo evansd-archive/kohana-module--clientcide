@@ -12,7 +12,7 @@ Script: SimpleCarousel.js
 Builds a carousel object that manages the basic functions of a generic carousel (a carousel	here being a collection of "slides" that play from one to the next, with a collection of "buttons" that reference each slide).
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var SimpleCarousel = new Class({
 	Implements: [Options, Events],
@@ -84,6 +84,7 @@ var SimpleCarousel = new Class({
 		return this;
 	},
 	autoplay: function(){
+		this.slideFx.setOptions(this.slideFx.options, {duration: this.options.transitionDuration});
 		this.slideshowInt = this.rotate.periodical(this.options.slideInterval, this);
 		this.fireEvent('onAutoPlay');
 		return this;
@@ -94,8 +95,8 @@ var SimpleCarousel = new Class({
 		return this;
 	},
 	rotate: function(){
-		current = this.currentSlide;
-		next = (current+1 >= this.slides.length) ? 0 : current+1;
+		var current = this.currentSlide;
+		var next = (current+1 >= this.slides.length) ? 0 : current+1;
 		this.showSlide(next);
 		this.fireEvent('onRotate', next);
 		return this;

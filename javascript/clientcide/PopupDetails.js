@@ -1,11 +1,11 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Element.Event.js');
+	$this->requires('mootools/Request.js');
+	$this->requires('mootools/JSON.js');
 	$this->requires('clientcide/dbug.js');
 	$this->requires('clientcide/String.Extras.js');
 	$this->requires('clientcide/StickyWin.Fx.js');
-	$this->requires('mootools/Request.js');
-	$this->requires('mootools/JSON.js');
 
 echo '/*';?> */
 
@@ -14,7 +14,7 @@ Script: PopupDetails.js
 	Creates hover detail popups for a collection of elements and data.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var PopupDetail = new Class({
 	Implements: [Options, Events],

@@ -2,11 +2,10 @@
 
 	$this->requires('mootools/Class.Extras.js');
 	$this->requires('mootools/Element.Event.js');
-	$this->requires('clientcide/StickyWin.js');
+	$this->requires('mootools/JSON.js');
+	$this->requires('clientcide/Date.js');
 	$this->requires('clientcide/dbug.js');
 	$this->requires('clientcide/StickyWin.ui.js');
-	$this->requires('clientcide/Date.js');
-	$this->requires('mootools/JSON.js');
 
 echo '/*';?> */
 
@@ -15,7 +14,7 @@ Script: DatePicker.js
 	Allows the user to enter a date in many popuplar date formats or choose from a calendar.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var DatePicker;
 (function(){
@@ -82,10 +81,10 @@ var DatePicker;
 			this.setOptions({
 				stickyWinToUse: StickyWinToUse
 			}, options);
+			if(this.options.useDefaultCss) this.createStyle(this.options.defaultCss, 'datePickerStyle');
+			if (!this.inputs) return;
 			this.whens = this.whens || ['start'];
 			if(!this.calendarId) this.calendarId = "popupCalendar" + new Date().getTime();
-			if(this.options.useDefaultCss)
-				this.createStyle(this.options.defaultCss, 'datePickerStyle');
 			this.setUpObservers();
 			this.getCalendar();
 			this.formValidatorInterface();
@@ -203,7 +202,7 @@ var DatePicker;
 				cal.addEvent('click', this.clickCalendar.bind(this));
 				this.calendar = cal;
 				this.container = new Element('div').adopt(cal).addClass('calendarHolder');
-				this.content = StickyWin.ui('', this.container, $merge(this.options.stickyWinUiOptions, {
+				this.content = StickyWin.ui(' ', this.container, $merge(this.options.stickyWinUiOptions, {
 					cornerHandle: this.options.stickyWinOptions.draggable,
 					width: this.calWidth
 				}));
@@ -226,7 +225,7 @@ var DatePicker;
 			if (closer) {
 				closer.inject(this.container, 'after').setStyle('z-index', this.stickyWin.win.getStyle('z-index').toInt()+2);
 				(function(){
-					this.content.setStyle('width', this.calendar.getSize().x + 40);
+					this.content.setStyle('width', this.calendar.getSize().x + (this.options.time ? 240 : 40));
 					closer.setPosition({relativeTo: this.stickyWin.win.getElement('.top'), position: 'upperRight', edge: 'upperRight'});
 				}).delay(3, this);
 			}

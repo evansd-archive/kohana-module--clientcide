@@ -11,7 +11,7 @@ Script: Browser.Extras.js
 	Extends the Window native object to include methods useful in managing the window location and urls.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 $extend(Browser, {
@@ -54,6 +54,12 @@ $extend(Browser, {
 			});
 	  }
 		return port;
+	},
+  redraw: function(element){
+    var n = document.createTextNode(' ');
+    this.adopt(n);
+    (function(){n.dispose()}).delay(1);
+    return this;
 	}
 });
 window.addEvent('domready', function(){

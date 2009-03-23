@@ -10,7 +10,7 @@ Script: Date.Norwegian.js
 Hovlandsdal.
 
 License:
-       http://clientside.cnet.com/wiki/cnet-libraries#license
+       http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Date.$resources.NO = {
 	ago: {

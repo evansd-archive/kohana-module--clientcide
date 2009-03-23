@@ -1,6 +1,7 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Element.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -9,13 +10,11 @@ Script: Element.Forms.js
 	Extends the Element native object to include methods useful in managing inputs.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Element.implement({
 	tidy: function(){
-		try {	
-			this.set('value', this.get('value').tidy());
-		}catch(e){dbug.log('element.tidy error: %o', e);}
+		this.set('value', this.get('value').tidy());
 	},
 	getTextInRange: function(start, end) {
 		return this.get('value').substring(start, end);
@@ -24,23 +23,21 @@ Element.implement({
 		if(Browser.Engine.trident) return document.selection.createRange().text;
 		return this.get('value').substring(this.getSelectionStart(), this.getSelectionEnd());
 	},
+	getIERanges: function(){
+		this.focus();
+		var range = document.selection.createRange();
+		var re = this.createTextRange();
+		var dupe = re.duplicate();
+		re.moveToBookmark(range.getBookmark());
+		dupe.setEndPoint('EndToStart', re);
+		return { start: dupe.text.length, end: dupe.text.length + range.text.length, length: range.text.length, text: range.text };
+	},
 	getSelectionStart: function() {
-		if(Browser.Engine.trident) {
-			var offset = (Browser.Engine.trident4)?3:2;
-			this.focus();
-			var range = document.selection.createRange();
-			if (range.compareEndPoints("StartToEnd", range) != 0) range.collapse(true);
-			return range.getBookmark().charCodeAt(2) - offset;
-		}
+		if(Browser.Engine.trident) return this.getIERanges().start;
 		return this.selectionStart;
 	},
 	getSelectionEnd: function() {
-		if(Browser.Engine.trident) {
-			var offset = (Browser.Engine.trident4)?3:2;
-			var range = document.selection.createRange();
-			if (range.compareEndPoints("StartToEnd", range) != 0) range.collapse(false);
-			return range.getBookmark().charCodeAt(2) - offset;
-		}
+		if(Browser.Engine.trident) return this.getIERanges().end;
 		return this.selectionEnd;
 	},
 	getSelectedRange: function() {

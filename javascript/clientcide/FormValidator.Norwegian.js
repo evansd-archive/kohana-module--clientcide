@@ -9,7 +9,7 @@ Script: FormValidator.Norwegian.js
 	FormValidator messages in Norwegian. Thanks Espen 'Rexxars' Hovlandsdal.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.NO = {
    required:'Dette feltet er pÃ¥krevd.',

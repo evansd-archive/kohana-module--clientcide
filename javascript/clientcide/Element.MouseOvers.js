@@ -12,7 +12,7 @@ Script: Element.MouseOvers.js
 Collection of mouseover behaviours (images, class toggles, etc.).
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Element.implement({

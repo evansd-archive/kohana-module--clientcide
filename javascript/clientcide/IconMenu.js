@@ -16,7 +16,7 @@ Script: IconMenu.js
 	Defines IconMenu, a simple icon (img) based menu.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var IconMenu = new Class({
 	Implements: [Options, Events],

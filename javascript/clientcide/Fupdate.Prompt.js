@@ -12,7 +12,7 @@ Script: Fupdate.Prompt.js
 	Prompts the user with the contents of a form (retrieved via ajax) and updates a DOM element with the result of the submission.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 (function(){
 	
@@ -40,11 +40,11 @@ License:
 			},
 			makeStickyWin: function(form){
 				if ($(form)) form = $(form);
-				this.swin = new this.options.stickyWinToUse({
+				this.swin = new this.options.stickyWinToUse($merge({
 					content: this.options.useUi?StickyWin.ui('Update Info', form, this.options.stickyWinUiOptions):form,
 					showNow: false
-				});
-				this.form = this.swin.win.getElement('form');
+				}, this.options.stickyWinOptions));
+				this.element = this.swin.win.getElement('form');
 				this.initAfterUpdate();
 			},
 			hide: function(){
@@ -59,7 +59,7 @@ License:
 				this.setOptions({
 					requestOptions: {
 						useWaiter: this.options.useWaiter,
-						waiterTarget: this.form,
+						waiterTarget: $(this),
 						waiterOptions: {
 							layer: {
 								styles: {
@@ -71,7 +71,7 @@ License:
 				});
 				this.makeRequest();
 				this.addFormEvent();
-				this.form.store('fupdate', this.form);
+				$(this).store('fupdate', this);
 			}
 		};
 	};
@@ -98,9 +98,9 @@ License:
 					handleResponse: function(response) {
 						var responseScript = "";
 						this.swin.Request.response.text.stripScripts(function(script){	responseScript += script; });
-						var content = StickyWin.ui('Update Info', response, this.options.stickyWinUiOptions);
+						var content = this.options.useUi?StickyWin.ui('Update Info', response, this.options.stickyWinUiOptions):response;
 						this.swin.setContent(content);
-						this.form = this.swin.win.getElement('form');
+						this.element = this.swin.win.getElement('form');
 						this.initAfterUpdate();
 						this.swin.show();
 						if (this.options.requestOptions.evalScripts) $exec(responseScript);

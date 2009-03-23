@@ -7,6 +7,9 @@
 	$this->requires('mootools/Fx.Tween.js');
 	$this->requires('mootools/Fx.Morph.js');
 	$this->requires('mootools/DomReady.js');
+	$this->requires('clientcide/Clientcide.js');
+	$this->requires('clientcide/Class.Binds.js');
+	$this->requires('clientcide/Modalizer.js');
 
 echo '/*';?> */
 
@@ -20,7 +23,8 @@ Script: Lightbox.js
 
 */
 var Lightbox = new Class({
-	Implements: [Options, Events],
+	Implements: [Options, Events, Modalizer],
+	binds: ['click', 'keyboardListener', 'addHtmlElements'],
 	options: {
 //	anchors: null,
 		resizeDuration: 400,
@@ -42,48 +46,49 @@ var Lightbox = new Class({
 //	onHide: $empty
 	},
 
-	initialize: function(options){
-		this.setOptions(options);
-		this.anchors = this.options.anchors || arguments[1];
-		if (this.options.autoScanLinks && !this.anchors) {
-			this.anchors = [];
-			$$('a[rel^='+this.options.relString+']').each(function(el){
-				if(!el.retrieve('lightbox')) this.anchors.push(el);
-			}, this);
-		}
-		if(!$$(this.anchors).length) return; //no links!
-		this.addAnchors(this.anchors);
-		this.init();
-	},
-	
-	init: function(){
+	initialize: function(){
+		var args = Array.link(arguments, {options: Object.type, links: Array.type});
+		this.setOptions(args.options);
+		var anchors = args.links || this.options.anchors;
+		if (this.options.autoScanLinks && !anchors) anchors = $$('a[rel^='+this.options.relString+']');
+		if(!$$(anchors).length) return; //no links!
+		this.addAnchors(anchors);
 		if(this.options.useDefaultCss) this.addCss();
-		this.eventKeyDown = this.keyboardListener.bind(this);
-		this.eventPosition = this.position.bind(this);
 		window.addEvent('domready', this.addHtmlElements.bind(this));
-		return this;
 	},
+		
+	anchors: [],
 	
 	addAnchors: function(anchors){
 		$$(anchors).each(function(el){
 			if(!el.retrieve('lightbox')) {
 				el.store('lightbox', this);
-				el.addEvent('click', function(e){
-					e.stop();
-					this.click(el);
-				}.bind(this));
+				this.attach(el);
 			}
 		}.bind(this));
 	},
+	
+	attach: function(el) {
+		el.addEvent('click', this.click.pass(el, this));
+		this.anchors.include(el);
+	},
 
 	addHtmlElements: function(){
-		this.overlay = new Element('div', {
-			'class': 'lbOverlay',
-			styles: {
-				zIndex:this.options.zIndex
-			}
+		this.container = new Element('div', {
+			'class':'lbContainer'
+		}).inject(document.body);
+		this.setModalOptions({
+			onModalHide: this.close.bind(this)
 		});
-		this.overlay.inject(document.body).setStyles(this.options.overlayStyles);
+		this.overlay = this.layer().addClass('lbOverlay');
+		this.setModalStyle($merge(this.options.overlayStyles, {
+				opacity: 0
+			})
+		);
+		this.popup = new Element('div', {
+			'class':'lbPopup'
+		}).inject(this.container);
+		this.overlay.inject(this.popup);
 		this.center = new Element('div', {
 			styles: {	
 				width: this.options.initialWidth, 
@@ -92,7 +97,7 @@ var Lightbox = new Class({
 				display: 'none',
 				zIndex:this.options.zIndex+1
 			}
-		}).inject(document.body).addClass('lbCenter');
+		}).inject(this.popup).addClass('lbCenter');
 		this.image = new Element('div', {
 			'class': 'lbImage'
 		}).inject(this.center);
@@ -111,7 +116,7 @@ var Lightbox = new Class({
 			styles: {
 				display: 'none', 
 				zIndex:this.options.zIndex+1
-		}}).inject(document.body);
+		}}).inject(this.popup);
 		this.bottom = new Element('div', {'class': 'lbBottom'}).inject(this.bottomContainer);
 		new Element('a', {
 			'class': 'lbCloseLink', 
@@ -149,8 +154,8 @@ var Lightbox = new Class({
 		}.bind(this));
 	},
 
-	click: function(link){
-		link = $(link);
+	click: function(el){
+		link = $(el);
 		var rel = link.get('rel')||this.options.relString;
 		if (rel == this.options.relString) return this.show(link.get('href'), link.get('title'));
 
@@ -174,35 +179,27 @@ var Lightbox = new Class({
 	open: function(images, imageNum){
 		this.fireEvent('onDisplay');
 		this.images = images;
-		this.position();
 		this.setup(true);
 		this.top = (window.getScroll().y + (window.getSize().y / 15)).toInt();
 		this.center.setStyles({
 			top: this.top,
 			display: ''
 		});
-		this.fx.overlay.start(this.options.overlayStyles.opacity);
+		this.modalShow();
+		this.fx.overlay.start(0, this.options.overlayStyles.opacity);
 		return this.changeImage(imageNum);
-	},
-
-	position: function(){
-		this.overlay.setStyles({
-			'top': window.getScroll().y, 
-			'height': window.getSize().y
-		});
 	},
 
 	setup: function(open){
 		var elements = $$('object, iframe');
 		elements.extend($$(Browser.Engine.trident ? 'select' : 'embed'));
-		elements.each(function(el){
-			if (open) el.store('lbBackupStyle', el.getStyle('visibility'));
-			var vis = (open ? 'hidden' : el.retrieve('lbBackupStyle'));
+		elements.reverse().each(function(el){
+			if (open) el.store('lbBackupStyle', el.getStyle('visibility') || 'visible');
+			var vis = (open ? 'hidden' : el.retrieve('lbBackupStyle') || 'visible');
 			el.setStyle('visibility', vis);
 		});
 		var fn = open ? 'addEvent' : 'removeEvent';
-		window[fn]('scroll', this.eventPosition)[fn]('resize', this.eventPosition);
-		document[fn]('keydown', this.eventKeyDown);
+		document[fn]('keydown', this.keyboardListener);
 		this.step = 0;
 	},
 

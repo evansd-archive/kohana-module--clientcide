@@ -1,7 +1,7 @@
 /* <?php echo '*','/';
 
-	$this->requires('clientcide/Fx.Reveal.js');
 	$this->requires('mootools/Element.Event.js');
+	$this->requires('clientcide/Fx.Reveal.js');
 
 echo '/*';?> */
 
@@ -10,7 +10,7 @@ Script: Collapsable.js
 	Enables a dom element to, when clicked, hide or show (it toggles) another dom element. Kind of an Accordion for one item.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var Collapsable = new Class({
 	Extends: Fx.Reveal,

@@ -1,6 +1,7 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Element.Style.js');
+	$this->requires('clientcide/Clientcide.js');
 
 echo '/*';?> */
 
@@ -9,10 +10,18 @@ Script: Element.Measure.js
 	Extends the Element native object to include methods useful in measuring dimensions.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Element.implement({
+
+	// Daniel Steigerwald - MIT licence
+	measure: function(fn) {
+		var restore = this.expose();
+		var result = fn.apply(this);
+		restore();
+		return result;
+	},
 
 	expose: function(){
 		if (this.getStyle('display') != 'none') return $empty;

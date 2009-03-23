@@ -2,8 +2,8 @@
 
 	$this->requires('mootools/Class.Extras.js');
 	$this->requires('mootools/Element.Event.js');
-	$this->requires('clientcide/StickyWin.js');
 	$this->requires('clientcide/dbug.js');
+	$this->requires('clientcide/StickyWin.js');
 
 echo '/*';?> */
 
@@ -12,7 +12,7 @@ Script: DatePicker.Extras.js
 	Extends DatePicker to allow for range selection and time entry.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 DatePicker.refactor({
 	options:{
@@ -39,7 +39,7 @@ DatePicker.refactor({
 				hideCalendarOnPick: false
 			}, options);
 		}
-		if (options.time && !options.format) {
+		if (options && options.time && !options.format) {
 			options.format = "%x %X";
 		}
 		this.setOptions(options);

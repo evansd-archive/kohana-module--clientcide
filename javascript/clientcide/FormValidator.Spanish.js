@@ -9,25 +9,25 @@ Script: FormValidator.Spanish.js
 	FormValidator messages in Spanish. Thanks Miquel Hudin.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
-FormValidator.resources.ESP= {
+FormValidator.resources.ESP= {		
 	required:'Este campo es obligatorio.',
-	minLength:'Por favor escribe como mnimo {minLength} caracteres (has escrito {length} caracteres).',
-	maxLength:'Por favor no escribas ms de {maxLength} caracteres (has escrito {length} caracteres).',
-	integer:'Por favor escribe un nmero entero. Los nmeros con decimales (p.ej. 1\'25) no estn permitidos.',
-	numeric:'Por favor escribe tan slo valores nmericos en este campo (p.ej. "1" or "1\'1" or "-1" or "-1\'1").',
-	digits:'Por favor utiliza nmeros y signos de puntuacin tan slo en este campo (por ejemplo, un nmero de telfono con guiones est permitido).',
-	alpha:'Por favor utiliza slo letras (a-z) en este campo. Los espacios u otros caracteres no estn permitidos.',
-	alphanum:'Por favor utiliza slo letras (a-z) o nmeros en este campo. Los espacios u otros caracteres no estn permitidos.',
-	dateSuchAs:'Por favor escribe una fecha vlida, como {date}',
-	dateInFormatMDY:'Por favor escribe una fecha vlida, como DD/MM/AAAA (p.ej. "31/11/1999")',
-	email:'Por favor escribe una direccin de correo electrnico vlida. Por ejemplo "fred@domain.com".',
-	url:'Por favor escribe una URL vlida, como http://www.google.com.',
-	currencyDollar:'Por favor escribe una cantidad vlida. Por ejemplo $100.00 .',
+	minLength:'Por favor escribe como m&iacute;nimo {minLength} caracteres (has escrito {length} caracteres).',
+	maxLength:'Por favor no escribas m&aacute;s de {maxLength} caracteres (has escrito {length} caracteres).',
+	integer:'Por favor escribe un n&uacute;mero entero. Los n&uacute;meros con decimales (p.ej. 1\'25) no est&aacute;n permitidos.',
+	numeric:'Por favor escribe tan s&oacute;lo valores num&eacute;ricos en este campo (p.ej. "1" or "1\'1" or "-1" or "-1\'1").',
+	digits:'Por favor utiliza n&uacute;meros y signos de puntuaci&oacute;n tan s&oacute;lo en este campo (por ejemplo, un n&uacute;mero de tel&eacute;fono con guiones est&aacute; permitido).',
+	alpha:'Por favor utiliza s&oacute;lo letras (a-z) en este campo. Los espacios u otros caracteres no est&aacute;n permitidos.',
+	alphanum:'Por favor utiliza s&oacute;lo letras (a-z) o n&uacute;meros en este campo. Los espacios u otros caracteres no estn permitidos.',
+	dateSuchAs:'Por favor escribe una fecha v&aacute;lida, como {date}',
+	dateInFormatMDY:'Por favor escribe una fecha v&aacute;lida, como DD/MM/AAAA (p.ej. "31/11/1999")',
+	email:'Por favor escribe una direcci&oacute;n de correo electr&oacute;nico v&aacute;lida. Por ejemplo "fred@domain.com".',
+	url:'Por favor escribe una URL v&aacute;lida, como http://www.google.com.',
+	currencyDollar:'Por favor escribe una cantidad v&aacute;lida. Por ejemplo $100.00 .',
 	oneRequired:'Por favor selecciona al menos una de estas opciones.',
-	errorPrefix: 'Error: ',
-	warningPrefix: 'Aviso: '
+	errorPrefix:'Error: ',
+	warningPrefix:'Aviso: '
 };
 if (Date.$culture == "US") {
 	try {

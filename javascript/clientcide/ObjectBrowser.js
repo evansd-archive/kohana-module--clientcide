@@ -2,8 +2,8 @@
 
 	$this->requires('mootools/Element.Event.js');
 	$this->requires('mootools/Class.Extras.js');
-	$this->requires('clientcide/Hash.Extras.js');
 	$this->requires('clientcide/dbug.js');
+	$this->requires('clientcide/Hash.Extras.js');
 	$this->requires('clientcide/Element.Shortcuts.js');
 
 echo '/*';?> */
@@ -13,7 +13,7 @@ Script: ObjectBrowser.js
 	Creates a tree view of any javascript object.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 var ObjectBrowser = new Class({

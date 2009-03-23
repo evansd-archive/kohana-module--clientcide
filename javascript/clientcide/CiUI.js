@@ -9,16 +9,21 @@ Script: CiUI.js
 
 Handles iPhone-optimized pages and mimics iPhone UI behavior
 
+Version: 0.3
+
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 (function() {
+
+if (!window.addEventListener) return;
 
 var bodyEl; // see ciUI.initialize() for details
 var buttonForward = "go_forward";
 var buttonBackward = "go_back";
 var buttonLoadMore = "load_more";
+var cachePage = "cache";
 var backButtonEl; // see ciUI.initialize() for details
 var backButtonTextEl; // see ciUI.initialize() for details
 var pageTitleEl; // see ciUI.initialize() for details
@@ -26,16 +31,20 @@ var update = "do_update";
 var updateAttr = "update";
 
 var pages = []; // see ciUI.initialize() for details
-var pageHistory = []; 
+var pageHistory = [];
+var cachedPages = [];
+var cacheCounter = 0;
+var cachedPagePrefix = "__cached-"; 
 
 var homePage = location.href;
 var hashPrefix = "#__";
-var currentHash = location.hash;
+var currentHash = hashPrefix + 0;
 var currentPage = 1; // possible values are 1 or -1 (1: from, -1: to)
 
 var animSpeed = 20; // smaller number means slower animation
 var navigationCheckInterval = 300;
 var navigtionChangeTimer;
+var httpRequest = null;
 var uiIsActive;
 
 window.ciUI = {
@@ -48,6 +57,7 @@ window.ciUI = {
 		if (pageTitleEl && pageTitleEl.innerHTML == "") pageTitleEl.innerHTML = document.title;
 		this.setupPages();
 		this.animating = false;
+		this.shouldCache = null;		
 		setTimeout(scrollTo, 100, 0, 1);
 		return true;
 	},
@@ -87,10 +97,13 @@ window.ciUI = {
 		pages[-1] = $(page2.id);
 	},
 	
-	goToPage: function(target, backwards) {
-		if (backwards === undefined) backwards = false;
-
+	goToPage: function(target, backwards, shouldBeCached) {
 		this.slidePages(backwards);
+		// Cache if needed
+		if (this.shouldCache) {
+			this.saveCurrentPageToCache();
+			this.shouldCache = null;
+		}
 		// BACKWARD
 		if (backwards) { 
 			currentHash = location.hash;
@@ -99,7 +112,11 @@ window.ciUI = {
 		// FORWARD
 		else {
    			pageHistory.push(target);								
+			if (shouldBeCached && !cachedPages[escape(target.href)]) {
+				this.shouldCache = target.href;			
+			}
 		}
+
 		this.updatePage(target);				
 	},
 	
@@ -107,11 +124,11 @@ window.ciUI = {
 		target.className = "load_more_loading";
 		(new this.ajax(target.href, updatePage)).run();
 		
-		var updatePage = function(content) {
+		function updatePage(content) {
 			target.parentNode.removeChild(target);
 			pages[currentPage].innerHTML += content;
 			ciUI.adjustBodyToEl(pages[currentPage]);
-		};
+		}
 	},
 	
 	updatePage: function(target) {
@@ -121,18 +138,34 @@ window.ciUI = {
 		if (pageIndexFromHash(nextHash) == 0 || !target) {
 			pageTitleEl.innerHTML = trim(document.title);
 			this.updatePageContent(pages[0].innerHTML); // page[0] is home, no need for AJAX
+		}
+		else if ((idx = cachedPages[escape(target.href)]) != null) {
+			backButtonTextEl.innerHTML = (pageHistory[pageHistory.length-2]) ? trim(pageHistory[pageHistory.length-2].title, 15) : "Back";
+			pageTitleEl.innerHTML = trim(target.title);
+			this.updatePageContent($(cachedPagePrefix + idx).innerHTML);			
 		}			
 		else {
 			backButtonTextEl.innerHTML = (pageHistory[pageHistory.length-2]) ? trim(pageHistory[pageHistory.length-2].title, 15) : "Back";
 			pageTitleEl.innerHTML = trim(target.title);			
 			var url = target.href;
-			if (!url && target.tagName.toLowerCase() == "form") url = target.action+"?"+toQueryString(target);
+			if (!url && target.tagName.toLowerCase() == "form") url = target.action+"?"+target.toQueryString();
 			(new this.ajax(url, this.updatePageContent)).run();
 		}
 	},
 	
+	saveCurrentPageToCache: function() {
+		var page = document.createElement("div");
+		page.style.display = "none";
+		page.innerHTML = pages[currentPage].innerHTML;
+		page.id = cachedPagePrefix + cacheCounter;
+		cachedPages[escape(this.shouldCache)] = cacheCounter++;
+		document.body.appendChild(page);	
+	},
+	
 	updatePageContent: function(content) {
-		var update = function() {
+		var updateTimer = setInterval(update, 0);
+			
+		function update() {
 			if (!ciUI.animating) {
 				$("__scroll_top__").name = currentHashName(true);
 				pages[currentPage].innerHTML = content;
@@ -142,8 +175,7 @@ window.ciUI = {
 				location.href = currentHash = currentHashName();
 				if (ciUI.callbackFunct) ciUI.callbackFunct();
 			}			
-		};
-		var updateTimer = setInterval(update, 0);
+		}		
 	},
 	
 	slidePages: function(backwards) {
@@ -160,7 +192,9 @@ window.ciUI = {
 		
 		clearInterval(navigationChangeTimer); // pause the history daemon during animation.
 		setTimeout(scrollTo, 100, 0, 1);
-		var animate = function() {
+		var animTimer = setInterval(animate, 0);
+		
+		function animate() {
 			progress -= animSpeed;
 			
 			if (progress <= 0) {
@@ -172,15 +206,17 @@ window.ciUI = {
 			}			
 			fromPage.style.left = (backwards ? (100 - progress) : (progress - 100)) + "%";
 			toPage.style.left = (backwards ? -progress : progress) + "%";
-		};
-		var animTimer = setInterval(animate, 0);
+		}
 	},
 	
 	ajax: function(sourceURL, responseConsumer, responseType) {
-		var httpRequest = false;
-		
 		this.run = function()
 		{
+			if (httpRequest != null) {				
+				httpRequest.abort();
+				httpRequest = null;
+			}				
+
 			if (responseType === undefined) responseType = "TEXT";
 			responseType = responseType.toUpperCase();
 			
@@ -207,22 +243,24 @@ window.ciUI = {
 				return false;
 			}
 	
+		
 			httpRequest.open('GET', sourceURL, true);
 			httpRequest.onreadystatechange = getResponse;
 			httpRequest.send(null);	
 		};
 		
-		var getResponse = function() {	
+		function getResponse() {	
 			if (httpRequest.readyState == 4)
 				if (httpRequest.status == 200) {
 					if (responseType == "XML")
 						responseConsumer(httpRequest.responseXML);
 					else
 						responseConsumer(httpRequest.responseText);
+					httpRequest = null;
 				}
-				//else
-				//console.log("There was a problem with the request: " + sourceUrl);
-		};
+				else
+					;//console.log("There was a problem with the request: " + sourceUrl);
+		}
 	},
 	
 	update: function(url, element) {	
@@ -233,10 +271,8 @@ window.ciUI = {
 	},
 		
 	cancel: function(event) {
-		pageHistory = [];
-		location.reload(true);
-		location.hash = "";
-		location.href = homePage;
+		history.back();
+		event.preventDefault();
 		return false;
 	},
 	
@@ -259,13 +295,14 @@ addEventListener("click", function(event) {
 	if (!uiIsActive) return;
 	var a = findParent(event.target, "a");
 	// We don't want to prevent defaults by default because there may be actual hrefs going to outside pages
-	if (a && hasClass(a, buttonForward)) {
-		ciUI.goToPage(a);
+	var shouldCachePage = a.hasClass(cachePage);
+	if (a && a.hasClass(buttonForward)) {
+		ciUI.goToPage(a, false, shouldCachePage);
 		event.preventDefault();
-	} else if (a && hasClass(a, buttonBackward)) {
+	} else if (a && a.hasClass(buttonBackward)) {
 		history.back();	
 		event.preventDefault();
-	} else if (a && hasClass(a, buttonLoadMore)) {
+	} else if (a && a.hasClass(buttonLoadMore)) {
 		ciUI.loadMore(a);
 		event.preventDefault();	
 	}	
@@ -276,47 +313,46 @@ addEventListener("submit", function(event) {
 	var a;
 	var form = findParent(event.target, "form");
 	if (!form) return;
-	if (hasClass(form, buttonForward)) {	
+	if (form.hasClass(buttonForward)) {	
 		event.preventDefault();
-		return ciUI.goToPage(form);
-	} else if (hasClass(form, update)) {
+		return ciUI.goToPage(form, false);
+	} else if (form.hasClass(update)) {
 		event.preventDefault();
-		ciUI.update(form.action+"?"+toQueryString(form), form.getAttribute(updateAttr));
+		ciUI.update(form.action+"?"+form.toQueryString(), form.getAttribute(updateAttr));
 		}
 }, true);
 
 addEventListener("click", function(event) {
-	event.preventDefault();
 	if (!uiIsActive) return;
 	var a = findParent(event.target, ("a"));
-	if (!a || !hasClass(a, update)) return;
+	if (!a || !a.hasClass(update)) return;
 	ciUI.update(a.href, a.getAttribute(updateAttr));
 }, true);
 
-var trim = function(text, maxLength) {
+function trim(text, maxLength) {
 	if (maxLength === undefined) maxLength = 20;
 	return (text.length > maxLength) ? text.substring(0, maxLength - 3) + "..." : text;
 };
 
-var currentHashName = function(ommitHashSymbol) {
+function currentHashName(ommitHashSymbol) {
 	return (ommitHashSymbol) ? hashPrefix.substr(1, hashPrefix.length) + (pageHistory.length) : hashPrefix + (pageHistory.length);
 };
 
-var navigationChangeAgent = function() {
+function navigationChangeAgent() {
 	if (currentHash != location.hash) {
 		ciUI.goToPage(pageHistory[pageHistory.length-2], true);
 	}
 };
 
-var pageIndexFromHash = function(hash) {
+function pageIndexFromHash(hash) {
 	return (hash) ? hash.substr(hash.lastIndexOf("_") + 1, hash.length) : 0;
 };
 
-var hasClass = function(el, name) {
-	return el.className.indexOf(name) != -1;
+Element.prototype.hasClass = function(name) {
+	return this.className.indexOf(name) != -1;
 };
 
-var toQueryString = function(form){
+Element.prototype.toQueryString = function(){
 	var qs = "";
 	var getvals = function(element){
 		var kids = element.childNodes;
@@ -324,23 +360,27 @@ var toQueryString = function(form){
 			var el = kids[i];
 			if (el.tagName) {
 				var t = el.tagName.toLowerCase();
+				if (t.toLowerCase() == "input" && el.getAttribute("type") == "checkbox" && !el.checked) {
+					qs += el.name + "=" + 0  + "&";
+					continue;
+				}
 				if (t.toLowerCase() == "input" || t.toLowerCase() == "textarea") qs += el.name + "=" + escape(el.value) + "&";
 				else if (t == "select") qs += el.name + "=" + escape(el.options[el.selectedIndex].value) + "&"; //no support for multiselect yet
 				else getvals(el);
 			}
 		}
 	};
-	getvals(form);
+	getvals(this);
 	return qs;
-};
+}
 
 // This function is courtesy of iUI
-var findParent = function(node, localName) {
+function findParent(node, localName) {
     while (node && (node.nodeType != 1 || node.localName.toLowerCase() != localName))
         node = node.parentNode;
     return node;
 };
 
-var $ = function(id){ return document.getElementById(id); };
+function $(id) { return document.getElementById(id); };
 
 })();

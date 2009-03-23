@@ -11,7 +11,7 @@ Script: String.Extras.js
 	Extends the String native object to include methods useful in managing various kinds of strings (query strings, urls, html, etc).
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 String.implement({
 	stripTags: function() {

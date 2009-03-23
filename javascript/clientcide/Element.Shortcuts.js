@@ -10,7 +10,7 @@ Script: Element.Shortcuts.js
 	Extends the Element native object to include some shortcut methods.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Element.implement({
@@ -43,5 +43,5 @@ Element.implement({
 	//it is temporary, as Mootools 1.1 will negate its requirement
 	fxOpacityOk: function(){
 		return !Browser.Engine.trident4;
-	}
+	} 
 });

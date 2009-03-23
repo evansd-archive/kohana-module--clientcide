@@ -9,7 +9,7 @@ Script: FormValidator.Arabic.js
 	FormValidator messages in Arabic. Thanks Chafik Barbar.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.AR = arabic: {
 	required:'هذا الحقل مطلوب.',

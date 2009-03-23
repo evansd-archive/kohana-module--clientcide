@@ -9,7 +9,7 @@ Script: FormValidator.Italian.js
 	FormValidator messages in Italian. Thanks Leonardo Laureti.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 FormValidator.resources.IT = {
 	required:'Il campo è richiesto.',

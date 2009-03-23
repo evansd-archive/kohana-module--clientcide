@@ -1,8 +1,9 @@
 /* <?php echo '*','/';
 
+	$this->requires('mootools/Fx.Elements.js');
+	$this->requires('clientcide/Class.Refactor.js');
 	$this->requires('clientcide/Element.Shortcuts.js');
 	$this->requires('clientcide/Element.Position.js');
-	$this->requires('mootools/Fx.Elements.js');
 	$this->requires('clientcide/IframeShim.js');
 
 echo '/*';?> */
@@ -13,7 +14,7 @@ Script: Waiter.js
 Adds a semi-transparent overlay over a dom element with a spinnin ajax icon.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var Waiter = new Class({
 	Implements: [Options, Events, Chain],
@@ -56,7 +57,8 @@ var Waiter = new Class({
 			'class': 'waitingDiv'
 		},
 		useIframeShim: true,
-		fxOptions: {}
+		fxOptions: {},
+		injectWhere: null
 //	iframeShimOptions: {},
 //	onShow: $empty
 //	onHide: $empty
@@ -64,7 +66,7 @@ var Waiter = new Class({
 	initialize: function(target, options){
 		this.target = $(target)||$(document.body);
 		this.setOptions(options);
-		this.waiterContainer = new Element('div', this.options.containerProps).inject(document.body);
+		this.waiterContainer = new Element('div', this.options.containerProps);
 		if (this.options.msg) {
 			this.msgContainer = new Element('div', this.options.msgProps);
 			this.waiterContainer.adopt(this.msgContainer);
@@ -72,9 +74,10 @@ var Waiter = new Class({
 			else this.msg = $(this.options.msg);
 			this.msgContainer.adopt(this.msg);
 		}
-		if (this.options.img) this.waiterImg = $(this.options.img.id) || new Element('img').injectInside(this.waiterContainer);
-		this.waiterOverlay = $(this.options.layer.id) || new Element('div').injectInside(document.body).adopt(this.waiterContainer);
+		if (this.options.img) this.waiterImg = $(this.options.img.id) || new Element('img').inject(this.waiterContainer);
+		this.waiterOverlay = $(this.options.layer.id) || new Element('div').adopt(this.waiterContainer);
 		this.waiterOverlay.set(this.options.layer);
+		this.place(target);
 		try {
 			if (this.options.useIframeShim) this.shim = new IframeShim(this.waiterOverlay, this.options.iframeShimOptions);
 		} catch(e) {
@@ -83,9 +86,14 @@ var Waiter = new Class({
 		}
 		this.waiterFx = this.waiterFx || new Fx.Elements($$(this.waiterContainer, this.waiterOverlay), this.options.fxOptions);
 	},
+	place: function(target, where){
+		var where = where || this.options.injectWhere || target == document.body ? 'inside' : 'after';
+		this.waiterOverlay.inject(target, where);
+	},
 	toggle: function(element, show) {
 		//the element or the default
 		element = $(element) || $(this.active) || $(this.target);
+		this.place(element);
 		if (!$(element)) return this;
 		if (this.active && element != this.active) return this.stop(this.start.bind(this, element));
 		//if it's not active or show is explicit
@@ -106,6 +114,7 @@ var Waiter = new Class({
 	start: function(element){
 		this.reset();
 		element = $(element) || $(this.target);
+		this.place(element);
 		if (this.options.img) {
 			this.waiterImg.set($merge(this.options.img, {
 				src: this.options.baseHref + this.options.img.src
@@ -123,9 +132,9 @@ var Waiter = new Class({
 				relativeTo: element,
 				position: 'upperLeft'
 			});
-			this.waiterContainer.setPosition({
+			this.waiterContainer.setPosition($merge({
 				relativeTo: this.waiterOverlay
-			});
+			}, this.options.containerPosition));
 			if (this.options.useIframeShim) this.shim.show();
 			this.waiterFx.start({
 				0: { opacity:[1] },

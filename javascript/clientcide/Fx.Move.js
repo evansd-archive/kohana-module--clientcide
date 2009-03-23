@@ -10,7 +10,7 @@ Script: Fx.Move.js
 	Defines Fx.Move, a class that works with Element.Position.js to transition an element from one location to another.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Fx.Move = new Class({
 	Extends: Fx.Morph,

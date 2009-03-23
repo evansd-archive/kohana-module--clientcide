@@ -1,13 +1,13 @@
 /* <?php echo '*','/';
 
 	$this->requires('mootools/Class.Extras.js');
-	$this->requires('clientcide/Element.Forms.js');
 	$this->requires('mootools/Selectors.js');
 	$this->requires('mootools/Element.Event.js');
-	$this->requires('clientcide/dbug.js');
 	$this->requires('mootools/Element.Style.js');
 	$this->requires('mootools/JSON.js');
+	$this->requires('clientcide/dbug.js');
 	$this->requires('clientcide/Date.js');
+	$this->requires('clientcide/Element.Forms.js');
 
 echo '/*';?> */
 
@@ -16,36 +16,66 @@ Script: FormValidator.js
 	A css-class based form validation system.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var InputValidator = new Class({
 	Implements: [Options],
+	options: {
+		errorMsg: 'Validation failed.',
+		test: function(field){return true;}
+	},
 	initialize: function(className, options){
-		this.setOptions({
-			errorMsg: 'Validation failed.',
-			test: function(field){return true}
-		}, options);
+		this.setOptions(options);
 		this.className = className;
 	},
-	test: function(field){
-		if($(field)) return this.options.test($(field), this.getProps(field));
+	test: function(field, props){
+		if($(field)) return this.options.test($(field), props||this.getProps(field));
 		else return false;
 	},
-	getError: function(field){
+	getError: function(field, props){
 		var err = this.options.errorMsg;
-		if($type(err) == "function") err = err($(field), this.getProps(field));
+		if($type(err) == "function") err = err($(field), props||this.getProps(field));
 		return err;
 	},
 	getProps: function(field){
-		if($(field) && $(field).get('validatorProps')){
-			try {
-				return JSON.decode($(field).get('validatorProps'));
-			}catch(e){ return {}}
-		} else {
-			return {}
-		}
+		if (!$(field)) return {};
+		return field.get('validatorProps');
 	}
 });
+
+Element.Properties.validatorProps = {
+
+	set: function(props){
+		return this.eliminate('validatorProps').store('validatorProps', props);
+	},
+
+	get: function(props){
+		if (props) this.set(props);
+		if (this.retrieve('validatorProps')) return this.retrieve('validatorProps');
+		if(this.getProperty('validatorProps')){
+			try {
+				this.store('validatorProps', JSON.decode(this.getProperty('validatorProps')));
+			}catch(e){ return {}}
+		} else {
+			var vals = this.get('class').split(' ').filter(function(cls) {
+				//return cls.match(/[a-z].*\[\'.*\'\]/ig);
+				return cls.test(':');
+			});
+			if (!vals.length) {
+				this.store('validatorProps', {});
+			} else {
+				props = {};
+				vals.each(function(cls){
+					var split = cls.indexOf(':');
+					props[cls.substring(0, split)] = JSON.decode(cls.substring(split+1, cls.length))
+				});
+				this.store('validatorProps', props);
+			}
+		}
+		return this.retrieve('validatorProps');
+	}
+
+};
 
 var FormValidator = new Class({
 	Implements:[Options, Events],
@@ -57,6 +87,8 @@ var FormValidator = new Class({
 		evaluateFieldsOnBlur: true,
 		evaluateFieldsOnChange: true,
 		serial: true,
+		stopOnFailure: true,
+		scrollToErrorsOnSubmit: true,
 		warningPrefix: function(){
 			return FormValidator.resources[FormValidator.language].warningPrefix || 'Warning: ';
 		},
@@ -102,10 +134,36 @@ var FormValidator = new Class({
 			return this.validateField(field, true);
 		}, this).every(function(v){ return v;});
 		this.fireEvent('onFormValidate', [result, this.form, event]);
+		if (this.options.stopOnFailure && !result && event) event.preventDefault();
+		if (this.options.scrollToErrorsOnSubmit && !result) {
+			var par = this.form.getParent();
+			var isScrolled = function(p){
+				return p.getScrollSize().y != p.getSize().y
+			};
+			var scrolls;
+			while (par != document.body && !isScrolled(par)) {
+				par = par.getParent();
+			};
+			var fx = par.retrieve('fvScroller');
+			if (!fx && window.Fx && Fx.Scroll) {
+				fx = new Fx.Scroll(par, {
+					transition: 'quad:out',
+					offset: {
+						y: -20
+					}
+				});
+				par.store('fvScroller', fx);
+			}
+			var failed = this.form.getElement('.validation-failed');
+			if (failed) {
+				if (fx) fx.toElement(failed);
+				else par.scrollTo(par.getScroll().x, failed.getPosition(par).y - 20);
+			}
+		}
 		return result;
 	},
 	validateField: function(field, force){
-		if(this.paused) return true;
+		if (this.paused) return true;
 		field = $(field);
 		var passed = !field.hasClass('validation-failed');
 		var failed, warned;
@@ -148,7 +206,7 @@ var FormValidator = new Class({
 		return passed;
 	},
 	getPropName: function(className){
-		return '__advice'+className;
+		return 'advice'+className;
 	},
 	test: function(className, field, warn){
 		field = $(field);
@@ -156,38 +214,54 @@ var FormValidator = new Class({
 		warn = $pick(warn, false);
 		if(field.hasClass('warnOnly')) warn = true;
 		var isValid = true;
-		if(field) {
-			var validator = this.getValidator(className);
-			if(validator && this.isVisible(field)) {
-				isValid = validator.test(field);
-				if(!isValid && validator.getError(field)){
-					if(warn) field.addClass('warning');
-					var advice = this.makeAdvice(className, field, validator.getError(field), warn);
-					this.insertAdvice(advice, field);
-					this.showAdvice(className, field);
-				} else this.hideAdvice(className, field);
-				this.fireEvent('onElementValidate', [isValid, field, className]);
-			}
+		var validator = this.getValidator(className);
+		if(validator && this.isVisible(field)) {
+			isValid = validator.test(field);
+			if(!isValid && validator.getError(field)){
+				if(warn) field.addClass('warning');
+				var advice = this.makeAdvice(className, field, validator.getError(field), warn);
+				this.insertAdvice(advice, field);
+				this.showAdvice(className, field);
+			} else this.hideAdvice(className, field);
+			this.fireEvent('onElementValidate', [isValid, field, className]);
 		}
+
 		if(warn) return true;
 		return isValid;
 	},
+	getAllAdviceMessages: function(field, force) {
+		var advice = [];
+		if (field.hasClass('ignoreValidation') && !force) return advice;
+		var validators = field.className.split(" ").some(function(cn){
+			var warner = cn.test('^warn-') || field.hasClass('warnOnly');
+			if (warner) cn = cn.replace(/^warn-/,"");
+			var validator = this.getValidator(cn);
+			if (!validator) return;
+			advice.push({
+				message: validator.getError(field),
+				warnOnly: warner,
+				passed: validator.test(),
+				validator: validator
+			});
+		}, this);
+		return advice;
+	},
 	showAdvice: function(className, field){
 		var advice = this.getAdvice(className, field);
-		if(advice && !field[this.getPropName(className)] 
+		if(advice && !field.retrieve(this.getPropName(className))
 			 && (advice.getStyle('display') == "none" 
 			 || advice.getStyle('visiblity') == "hidden" 
 			 || advice.getStyle('opacity')==0)){
-			field[this.getPropName(className)] = true;
+			field.store(this.getPropName(className), true);
 			if(advice.reveal) advice.reveal();
 			else advice.setStyle('display','block');
 		}
 	},
 	hideAdvice: function(className, field){
 		var advice = this.getAdvice(className, field);
-		if(advice && field[this.getPropName(className)]) {
-			field[this.getPropName(className)] = false;
-			//if element.cnet.js is present, transition the advice out
+		if(advice && field.retrieve(this.getPropName(className))) {
+			field.store(this.getPropName(className), false);
+			//if Fx.Reveal.js is present, transition the advice out
 			if(advice.dissolve) advice.dissolve();
 			else advice.setStyle('display','none');
 		}
@@ -206,29 +280,25 @@ var FormValidator = new Class({
 	makeAdvice: function(className, field, error, warn){
 		var errorMsg = (warn)?this.warningPrefix:this.errorPrefix;
 				errorMsg += (this.options.useTitles) ? field.title || error:error;
+		var cssClass = (warn)?'warning-advice':'validation-advice';
 		var advice = this.getAdvice(className, field);
-		if(!advice){
-			var cssClass = (warn)?'warning-advice':'validation-advice';
+		if(advice) {
+			advice = advice.clone(true).set('html', errorMsg).replaces(advice);
+		} else {
 			advice = new Element('div', {
-				text: errorMsg,
+				html: errorMsg,
 				styles: { display: 'none' },
 				id: 'advice-'+className+'-'+this.getFieldId(field)
 			}).addClass(cssClass);
-		} else{
-			advice.set('html', errorMsg);
 		}
 		field.store('advice-'+className, advice);
 		return advice;
 	},
 	insertAdvice: function(advice, field){
 		//Check for error position prop
-		var vProp = field.get('validatorProps');
-		if (vProp) {
-			var vp = JSON.decode(vProp);
-			var msgPos = vp.msgPos;
-		}
+		var props = field.get('validatorProps');
 		//Build advice
-		if (!msgPos) {
+		if (!props.msgPos || !$(props.msgPos)) {
 			switch (field.type.toLowerCase()) {
 				case 'radio':
 					var p = field.getParent().adopt(advice);
@@ -237,7 +307,7 @@ var FormValidator = new Class({
 					advice.inject($(field), 'after');
 			};
 		} else {
-			$(msgPos).grab(advice);
+			$(props.msgPos).grab(advice);
 		}
 	},
 	getFieldId : function(field) {
@@ -250,7 +320,7 @@ var FormValidator = new Class({
 			cn.each(function(className) {
 				if(className.test('^warn-')) className = className.replace(/^warn-/,"");
 				var prop = this.getPropName(className);
-				if(field[prop]) this.hideAdvice(className, field);
+				if(field.retrieve(prop)) this.hideAdvice(className, field);
 				field.removeClass('validation-failed');
 				field.removeClass('warning');
 				field.removeClass('validation-passed');
@@ -325,7 +395,7 @@ FormValidator.adders = {
 		}, this);
 	},
 	getValidator: function(className){
-		return this.validators[className];
+		return this.validators[className.split(":")[0]];
 	}
 };
 $extend(FormValidator, FormValidator.adders);
@@ -464,3 +534,28 @@ FormValidator.addAllThese([
 		}
 	}]
 ]);
+
+Element.Properties.validator = {
+
+	set: function(options){
+		var validator = this.retrieve('validator');
+		if (validator) validator.setOptions(options);
+		return this.store('validator:options');
+	},
+
+	get: function(options){
+		if (options || !this.retrieve('validator')){
+			if (options || !this.retrieve('validator:options')) this.set('validator', options);
+			this.store('validator', new FormValidator(this, this.retrieve('validator:options')));
+		}
+		return this.retrieve('validator');
+	}
+
+};
+
+Element.implement({
+	validate: function(options){
+		this.set('validator', options);
+		return this.get('validator', options).validate();
+	}
+});

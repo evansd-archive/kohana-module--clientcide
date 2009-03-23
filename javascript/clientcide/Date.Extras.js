@@ -9,7 +9,7 @@ Script: Date.Extras.js
 	Extends the Date native object to include extra methods (on top of those in Date.js).
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 ["LastDayOfMonth", "Ordinal"].each(function(method) {
@@ -17,9 +17,8 @@ License:
 });
 
 Date.implement({
-	timeDiffInWords: function(){
-		var relative_to = (arguments.length > 0) ? arguments[1] : new Date();
-		return Date.distanceOfTimeInWords(this, relative_to);
+	timeDiffInWords: function(relative_to){
+		return Date.distanceOfTimeInWords(this, relative_to || new Date);
 	},
 	getOrdinal: function() {
 		var test = this.get('date');
@@ -116,6 +115,21 @@ Date.$resources = {
 
 Date.$parsePatterns.extend([
 	{
+		//"1999-12-31 23:59:59"
+		re: /^(\d{4})[\.\-\/](\d{1,2})[\.\-\/](\d{2,4})\s(\d{1,2}):(\d{1,2}):(\d{1,2})/,
+		handler: function(bits) {			
+			var d = new Date();
+			var culture = Date.$cultures[Date.$culture];
+			d.set('year', bits[1]);
+			d.set('date', bits[3]);
+			d.set('month', bits[2] - 1);
+			d.set('hours', bits[4]);
+			d.set('minutes', bits[5]);
+			d.set('seconds', bits[6]);
+			return d;
+		}
+	},
+	{		
 		// yyyy-mm-ddTHH:MM:SS-0500 (ISO8601) i.e.2007-04-17T23:15:22Z
 		// inspired by: http://delete.me.uk/2005/03/iso8601.html
 		re: /^(\d{4})(?:-?(\d{2})(?:-?(\d{2})(?:[T ](\d{2})(?::?(\d{2})(?::?(\d{2})(?:\.(\d+))?)?)?(?:Z|(?:([-+])(\d{2})(?::?(\d{2}))?)?)?)?)?)?$/,
