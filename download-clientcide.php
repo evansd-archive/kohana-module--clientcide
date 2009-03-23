@@ -1,16 +1,17 @@
 <?php
+PHP_SAPI === 'cli' or die('Please run from the command line');
 
 $output_folder = realpath(dirname(__FILE__).'/javascript/clientcide/';
 
 $clientcide = "http://cnetjavascript.googlecode.com/svn/trunk/Source/";
 
 
-header('Content-Type: text/plain');
+
 
 echo "From: $clientcide\n";
 echo "To: $output_folder\n";
 
-// Get a list of the Mootools files, Core and More
+// Get a list of the Mootools files, both 'Core' and 'More'
 $mootools = array();
 foreach(array('core'=>'1.2.1', 'more'=>'1.2') as $type => $version)
 {
